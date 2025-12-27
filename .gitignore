@@ -33,3 +33,5 @@ build/
 .vscode/
 
 /src/main/resources/application-dev.yml
+/trae.md
+/src/test/java/org/yituliu/local/
