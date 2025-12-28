@@ -16,7 +16,7 @@ public class CharacterPoolRecord {
      * 记录ID，主键
      */
     @TableId(value = "id")
-    private String id;
+    private Long id;
     
     /**
      * 玩家ID（游戏内）
@@ -76,7 +76,7 @@ public class CharacterPoolRecord {
     /**
      * 语言
      */
-    private String language;
+    private String lang;
     
     /**
      * 卡池类型
@@ -91,7 +91,7 @@ public class CharacterPoolRecord {
     public CharacterPoolRecord() {
     }
 
-    public CharacterPoolRecord(String id, String endfieldUid, String uid, String poolId, String poolName, String charId, String charName, Integer rarity, Boolean isFree, Boolean isNew, String gachaTs, String seqId, String language, String poolType, String serverId) {
+    public CharacterPoolRecord(Long id, String endfieldUid, String uid, String poolId, String poolName, String charId, String charName, Integer rarity, Boolean isFree, Boolean isNew, String gachaTs, String seqId, String lang, String poolType, String serverId) {
         this.id = id;
         this.endfieldUid = endfieldUid;
         this.uid = uid;
@@ -104,16 +104,16 @@ public class CharacterPoolRecord {
         this.isNew = isNew;
         this.gachaTs = gachaTs;
         this.seqId = seqId;
-        this.language = language;
+        this.lang = lang;
         this.poolType = poolType;
         this.serverId = serverId;
     }
 
-    public String getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
@@ -205,12 +205,12 @@ public class CharacterPoolRecord {
         this.seqId = seqId;
     }
 
-    public String getLanguage() {
-        return language;
+    public String getLang() {
+        return lang;
     }
 
-    public void setLanguage(String language) {
-        this.language = language;
+    public void setLang(String lang) {
+        this.lang = lang;
     }
 
     public String getPoolType() {

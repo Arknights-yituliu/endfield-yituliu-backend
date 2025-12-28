@@ -7,12 +7,12 @@ import java.util.List;
  * 包含抽卡记录列表和分页信息
  * @author 山桜
  */
-public class GachaDataDTO {
+public class CharacterPoolRecordDataDTO {
     
     /**
      * 抽卡记录列表
      */
-    private List<GachaRecordDTO> list;
+    private List<CharacterPoolRecordDTO> list;
     
     /**
      * 是否还有更多数据
@@ -22,23 +22,23 @@ public class GachaDataDTO {
     /**
      * 默认构造函数
      */
-    public GachaDataDTO() {
+    public CharacterPoolRecordDataDTO() {
     }
     
     /**
      * 全参构造函数
      */
-    public GachaDataDTO(List<GachaRecordDTO> list, Boolean hasMore) {
+    public CharacterPoolRecordDataDTO(List<CharacterPoolRecordDTO> list, Boolean hasMore) {
         this.list = list;
         this.hasMore = hasMore;
     }
     
     // Getter和Setter方法
-    public List<GachaRecordDTO> getList() {
+    public List<CharacterPoolRecordDTO> getList() {
         return list;
     }
     
-    public void setList(List<GachaRecordDTO> list) {
+    public void setList(List<CharacterPoolRecordDTO> list) {
         this.list = list;
     }
     

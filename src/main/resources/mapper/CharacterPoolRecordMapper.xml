@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.yituliu.mapper.CharacterPoolRecordMapper">
+
+    <!-- 批量插入角色卡池记录 -->
+    <insert id="batchInsert" >
+        INSERT INTO character_pool_record (
+            id,
+            endfield_uid,
+            uid,
+            pool_id,
+            pool_name,
+            char_id,
+            char_name,
+            rarity,
+            is_free,
+            is_new,
+            gacha_ts,
+            seq_id,
+            lang,
+            pool_type,
+            server_id
+        ) VALUES
+        <foreach collection="list" item="item" separator=",">
+            (
+                #{item.id},
+                #{item.endfieldUid},
+                #{item.uid},
+                #{item.poolId},
+                #{item.poolName},
+                #{item.charId},
+                #{item.charName},
+                #{item.rarity},
+                #{item.isFree},
+                #{item.isNew},
+                #{item.gachaTs},
+                #{item.seqId},
+                #{item.lang},
+                #{item.poolType},
+                #{item.serverId}
+            )
+        </foreach>
+    </insert>
+
+
+
+</mapper>

@@ -1,13 +1,11 @@
 package org.yituliu.entity.dto;
 
-import java.util.List;
-
 /**
  * 抽卡API响应DTO
  * 对应Endfield抽卡记录API的响应结构
  * @author 山桜
  */
-public class GachaResponseDTO {
+public class CharacterPoolRecordResponseDTO {
     
     /**
      * 响应码
@@ -17,7 +15,7 @@ public class GachaResponseDTO {
     /**
      * 响应数据
      */
-    private GachaDataDTO data;
+    private CharacterPoolRecordDataDTO data;
     
     /**
      * 响应消息
@@ -27,13 +25,13 @@ public class GachaResponseDTO {
     /**
      * 默认构造函数
      */
-    public GachaResponseDTO() {
+    public CharacterPoolRecordResponseDTO() {
     }
     
     /**
      * 全参构造函数
      */
-    public GachaResponseDTO(Integer code, GachaDataDTO data, String msg) {
+    public CharacterPoolRecordResponseDTO(Integer code, CharacterPoolRecordDataDTO data, String msg) {
         this.code = code;
         this.data = data;
         this.msg = msg;
@@ -48,11 +46,11 @@ public class GachaResponseDTO {
         this.code = code;
     }
     
-    public GachaDataDTO getData() {
+    public CharacterPoolRecordDataDTO getData() {
         return data;
     }
     
-    public void setData(GachaDataDTO data) {
+    public void setData(CharacterPoolRecordDataDTO data) {
         this.data = data;
     }
     
