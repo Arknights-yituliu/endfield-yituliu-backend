@@ -77,44 +77,18 @@ public class UrlParser {
      * @param urlString Endfield抽卡记录URL
      * @return 包含所有抽卡相关参数的Map对象
      */
-    public static Map<String, Object> parseEndfieldGachaUrl(String urlString) {
-        Map<String, Object> result = new HashMap<>();
+    public static Map<String, String> parseEndfieldGachaUrl(String urlString) {
+        Map<String, String> result = new HashMap<>();
         
         // 解析基本参数
         result.put("lang", getParameter(urlString, "lang", "zh-cn"));
-        result.put("seq_id", getIntParameter(urlString, "seq_id", 0));
+        result.put("seq_id", getParameter(urlString, "seq_id", "10"));
         result.put("pool_type", getParameter(urlString, "pool_type", "E_CharacterGachaPoolType_Special"));
         result.put("token", getParameter(urlString, "token", ""));
-        result.put("server_id", getIntParameter(urlString, "server_id", 0));
+        result.put("server_id", getParameter(urlString, "server_id", "40"));
         
         return result;
     }
     
-    /**
-     * 测试方法：演示如何使用URL解析功能
-     */
-    public static void main(String[] args) {
-        String testUrl = "";
-        
-        // 方法1：使用通用解析方法
-        Map<String, String> params = parseUrlParameters(testUrl);
-        System.out.println("通用解析结果:");
-        params.forEach((key, value) -> System.out.println(key + ": " + value));
-        
-        System.out.println("\n---\n");
-        
-        // 方法2：使用专用方法解析Endfield抽卡URL
-        Map<String, Object> endfieldParams = parseEndfieldGachaUrl(testUrl);
-        System.out.println("Endfield抽卡URL解析结果:");
-        endfieldParams.forEach((key, value) -> System.out.println(key + ": " + value));
-        
-        System.out.println("\n---\n");
-        
-        // 方法3：获取单个参数值
-        String lang = getParameter(testUrl, "lang", "zh-cn");
-        int seqId = getIntParameter(testUrl, "seq_id", 0);
-        System.out.println("单个参数获取:");
-        System.out.println("lang: " + lang);
-        System.out.println("seq_id: " + seqId);
-    }
+
 }
