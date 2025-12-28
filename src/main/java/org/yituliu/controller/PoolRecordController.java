@@ -1,11 +1,15 @@
 package org.yituliu.controller;
 
 import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.yituliu.common.utils.Result;
+import org.yituliu.entity.po.CharacterPoolRecord;
 import org.yituliu.service.CharacterPoolRecordService;
+
+import java.util.List;
 
 @RestController
 public class PoolRecordController {
@@ -18,7 +22,12 @@ public class PoolRecordController {
 
     @PostMapping("/pool-record/character/upload")
     public Result<String> uploadCharacterPoolRecord(HttpServletRequest httpServletRequest, @RequestParam String uid, @RequestParam String url) {
-        characterPoolRecordService.savePoolRecord(httpServletRequest,uid, url);
-        return Result.success("后端启动成功");
+        ;
+        return Result.success(characterPoolRecordService.saveCharacterPoolRecord(httpServletRequest,uid, url));
+    }
+
+    @GetMapping("/pool-record/character/list")
+    public Result<List<CharacterPoolRecord>> getCharacterPoolRecordData(HttpServletRequest httpServletRequest, @RequestParam String uid) {
+        return Result.success(characterPoolRecordService.getCharacterPoolRecordData(httpServletRequest, uid));
     }
 }

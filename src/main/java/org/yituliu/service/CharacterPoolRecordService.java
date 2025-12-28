@@ -52,7 +52,7 @@ public class CharacterPoolRecordService {
         this.idGenerator = new IdGenerator(1L);
     }
 
-    public String savePoolRecord(HttpServletRequest httpServletRequest, String uid, String url) {
+    public String saveCharacterPoolRecord(HttpServletRequest httpServletRequest, String uid, String url) {
 //        String uid = httpServletRequest.getHeader("uid");
         if (uid == null) {
             throw new ServiceException(ResultCode.USER_NOT_EXIST);
@@ -144,7 +144,7 @@ public class CharacterPoolRecordService {
             characterPoolRecordMapper.batchInsert(newCharacterPoolRecordList);
         }
 
-        return "导入成功";
+        return "本次导入"+newCharacterPoolRecordList.size()+"条角色卡池记录";
     }
 
 
@@ -192,4 +192,10 @@ public class CharacterPoolRecordService {
     }
 
 
+    public List<CharacterPoolRecord> getCharacterPoolRecordData(HttpServletRequest httpServletRequest, String uid) {
+        LambdaQueryWrapper<CharacterPoolRecord> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(CharacterPoolRecord::getUid, uid);
+
+        return characterPoolRecordMapper.selectList(queryWrapper);
+    }
 }
