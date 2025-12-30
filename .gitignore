@@ -35,4 +35,6 @@ build/
 /src/main/resources/application-dev.yml
 /src/main/resources/application-pro.yml
 /trae.md
+
 /src/test/java/org/yituliu/local/
+/src/test/resources/local/

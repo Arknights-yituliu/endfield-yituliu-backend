@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.yituliu.common.enums.ResultCode;
 import org.yituliu.common.exception.ServiceException;
 import org.yituliu.common.utils.IdGenerator;
+import org.yituliu.common.utils.LogUtils;
 import org.yituliu.entity.dto.CharacterPoolRecordDTO;
 import org.yituliu.entity.dto.CharacterPoolRecordResponseDTO;
 import org.yituliu.entity.po.CharacterPoolRecord;
@@ -81,80 +82,35 @@ public class CharacterPoolRecordServiceV2 {
      */
     @Async("asyncExecutor")
     public CompletableFuture<BatchProcessResult> saveCharacterPoolRecordAsync(HttpServletRequest httpServletRequest, String uid, String url) {
-        String taskId = generateTaskId();
-        long startTime = System.currentTimeMillis();
-        activeTasks.incrementAndGet();
-        
-        TaskStats taskStats = new TaskStats(taskId, uid, startTime);
-        taskStatsMap.put(taskId, taskStats);
-        
-        try {
-            logger.info("开始处理任务: {}, 用户: {}, URL: {}", taskId, uid, url);
-            
-            if (uid == null) {
-                throw new ServiceException(ResultCode.USER_NOT_EXIST);
-            }
+        // 记录任务开始日志，包含用户ID和URL信息
+        LogUtils.info("开始处理角色抽卡记录导入任务:  用户: {}", uid);
 
-            Map<String, String> urlParams = UrlParser.parseEndfieldGachaUrl(url);
-            String serverId = urlParams.get("server_id");
-            
-            // 使用CompletableFuture进行并发处理
-            List<CompletableFuture<List<CharacterPoolRecord>>> futures = new ArrayList<>();
-            
-            for (String poolType : POOL_TYPES) {
-                CompletableFuture<List<CharacterPoolRecord>> future = CompletableFuture
-                        .supplyAsync(() -> processPoolType(urlParams, poolType, uid, serverId), asyncExecutor)
-                        .thenApply(this::filterExistingRecords);
-                futures.add(future);
-            }
-
-            // 等待所有池类型处理完成
-            CompletableFuture<Void> allFutures = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
-            
-            List<CharacterPoolRecord> allNewRecords = allFutures.thenApply(v -> {
-                List<CharacterPoolRecord> result = new ArrayList<>();
-                for (CompletableFuture<List<CharacterPoolRecord>> future : futures) {
-                    try {
-                        result.addAll(future.get());
-                    } catch (Exception e) {
-                        logger.error("获取处理结果失败", e);
-                        totalFailedRecords.incrementAndGet();
-                    }
-                }
-                return result;
-            }).join();
-
-            // 批量插入数据库
-            BatchProcessResult result = batchInsertRecords(allNewRecords, taskId);
-            
-            // 更新任务统计
-            long duration = System.currentTimeMillis() - startTime;
-            taskStats.setDuration(duration);
-            taskStats.setProcessedRecords(result.getSuccessCount());
-            taskStats.setStatus("COMPLETED");
-            
-            logger.info("任务完成: {}, 耗时: {}ms, 成功: {}, 失败: {}", 
-                    taskId, duration, result.getSuccessCount(), result.getFailedCount());
-            
-            return CompletableFuture.completedFuture(result);
-            
-        } catch (Exception e) {
-            logger.error("处理任务失败: {}", taskId, e);
-            totalFailedRecords.incrementAndGet();
-            taskStats.setStatus("FAILED");
-            taskStats.setErrorMessage(e.getMessage());
-            
-            BatchProcessResult errorResult = new BatchProcessResult();
-            errorResult.setTaskId(taskId);
-            errorResult.setSuccessCount(0);
-            errorResult.setFailedCount(0);
-            errorResult.setErrorMessage(e.getMessage());
-            
-            return CompletableFuture.completedFuture(errorResult);
-        } finally {
-            activeTasks.decrementAndGet();
-            taskStatsMap.remove(taskId);
+        // 参数校验：检查用户ID是否为空
+        if (uid == null) {
+            throw new ServiceException(ResultCode.USER_NOT_EXIST);
         }
+
+        // 解析URL参数，提取token和server_id等信息
+        Map<String, String> urlParams = UrlParser.parseEndfieldGachaUrl(url);
+
+        // 从URL参数中获取服务器ID
+        String serverId = urlParams.get("server_id");
+
+        // 并发处理所有池类型：为每个卡池类型创建异步任务
+        List<CompletableFuture<List<CharacterPoolRecord>>> futures = new ArrayList<>();
+
+        // 遍历所有卡池类型，为每种类型创建异步处理任务
+        for (String poolType : POOL_TYPES) {
+            requestCharacterPoolRecordAPIByPoolType(urlParams, poolType, null);
+        }
+
+        return null;
+    }
+
+    public void requestCharacterPoolRecordAPIByPoolType(Map<String, String> urlParams, String poolType, String seqId) {
+
+
+
     }
 
     /**

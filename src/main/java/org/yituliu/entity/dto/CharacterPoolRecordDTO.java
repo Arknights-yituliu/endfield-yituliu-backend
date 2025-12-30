@@ -147,37 +147,7 @@ public class CharacterPoolRecordDTO {
         this.seqId = seqId;
     }
     
-    /**
-     * 获取抽卡时间的格式化字符串
-     * @return 格式化后的时间字符串
-     */
-    public String getFormattedGachaTime() {
-        if (gachaTs == null || gachaTs.isEmpty()) {
-            return "";
-        }
-        try {
-            long timestamp = Long.parseLong(gachaTs);
-            return new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new java.util.Date(timestamp));
-        } catch (NumberFormatException e) {
-            return gachaTs;
-        }
-    }
-    
-    /**
-     * 获取稀有度对应的星级字符串
-     * @return 星级字符串（如：★★★★★）
-     */
-    public String getRarityStars() {
-        if (rarity == null) {
-            return "";
-        }
-        StringBuilder stars = new StringBuilder();
-        for (int i = 0; i < rarity; i++) {
-            stars.append("★");
-        }
-        return stars.toString();
-    }
-    
+
     @Override
     public String toString() {
         return "GachaRecordDTO{" +
