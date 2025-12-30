@@ -33,7 +33,7 @@ public class CharacterPoolRecordService {
             "E_CharacterGachaPoolType_Beginner"
     );
 
-    private final String Character_RECORD_API = "https://endfield.hypergryph.com/webview/api/record/char";
+    private final String CHARACTER_RECORD_API = "https://endfield.hypergryph.com/webview/api/record/char";
 
     private final String Lang = "zh-cn";
 
@@ -155,7 +155,7 @@ public class CharacterPoolRecordService {
         // 判断token是否已经是URL地址栏格式，如果不是则转换为地址栏格式
         String encodeToken = smartUrlEncode(token);
 
-        String url = Character_RECORD_API + "?lang=" + Lang + "&pool_type=" + poolType + "&token=" + encodeToken + "&server_id=" + server_id;
+        String url = CHARACTER_RECORD_API + "?lang=" + Lang + "&pool_type=" + poolType + "&token=" + encodeToken + "&server_id=" + server_id;
         if (seqId != null) {
             url += "&seq_id=" + seqId;
         }
