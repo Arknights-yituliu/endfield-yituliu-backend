@@ -21,34 +21,40 @@ public class CharacterPoolRecordServiceTest {
 
         List<CharacterPoolRecordDTO> testDataList = new ArrayList<>();
         long seqId = 1;
-        for(int type = 0; type < 5000; type++) {
-//            int num = ThreadLocalRandom.current().nextInt(100);
-            for (int num = 0; num < 880; num++) {
-                CharacterPoolRecordDTO characterPoolRecordDTO = new CharacterPoolRecordDTO();
-                characterPoolRecordDTO.setPoolId("special_1_0_"+type);
-                characterPoolRecordDTO.setPoolName("测试卡池"+type);
-                characterPoolRecordDTO.setCharId("chr_0"+num);
-                characterPoolRecordDTO.setCharName("测试角色"+num);
-                characterPoolRecordDTO.setRarity(5);
-                characterPoolRecordDTO.setIsFree(true);
-                characterPoolRecordDTO.setIsNew(true);
-                long l = System.currentTimeMillis();
-                characterPoolRecordDTO.setGachaTs(""+l);
-                characterPoolRecordDTO.setSeqId(seqId+ "");
-                seqId++;
-                testDataList.add(characterPoolRecordDTO);
+        for (int i = 0; i < 3000; i++) {
+            int num = ThreadLocalRandom.current().nextInt(100);
+            CharacterPoolRecordDTO characterPoolRecordDTO = new CharacterPoolRecordDTO();
+
+
+            if (num < 20) {
+                characterPoolRecordDTO.setPoolId("普池");
+                characterPoolRecordDTO.setPoolName("普通卡池" + num);
+            } else {
+                characterPoolRecordDTO.setPoolId("限定池");
+                characterPoolRecordDTO.setPoolName("限定卡池" + num);
             }
+
+            characterPoolRecordDTO.setCharId("chr_0" + num);
+            characterPoolRecordDTO.setCharName("测试角色" + num);
+            characterPoolRecordDTO.setRarity(5);
+            characterPoolRecordDTO.setIsFree(true);
+            characterPoolRecordDTO.setIsNew(true);
+            long l = System.currentTimeMillis();
+            characterPoolRecordDTO.setGachaTs("" + l);
+            characterPoolRecordDTO.setSeqId(seqId + "");
+            seqId++;
+            testDataList.add(characterPoolRecordDTO);
         }
-        
+
         // 帮我把这个testDataList存为json到src/test/resources/character_pool_record.json
-        FileUtil.saveStringToFile(JsonMapper.toJSONString(testDataList), "src/test/resources/character_pool_record.json");
-    
+        FileUtil.saveStringToFile(JsonMapper.toJSONString(testDataList), "src/test/resources/local/character_pool_record.json");
+
     }
 
 
     @Test
-    void seqIdListTest(){
-        System.out.println(initSeqIdList("692",540));
+    void seqIdListTest() {
+        System.out.println(initSeqIdList("692", 540));
     }
 
     /**
@@ -56,7 +62,7 @@ public class CharacterPoolRecordServiceTest {
      * 从lastSeqId开始，每次递减5，生成序列ID集合
      *
      * @param lastSeqIdStr 最后一个序列ID的字符串形式
-     * @param minSeqId 最小序列ID（包含）
+     * @param minSeqId     最小序列ID（包含）
      * @return 序列ID字符串列表，按降序排列
      * @throws IllegalArgumentException 当输入参数无效时抛出
      */
@@ -90,7 +96,7 @@ public class CharacterPoolRecordServiceTest {
 
         } catch (NumberFormatException e) {
             throw new IllegalArgumentException(
-                String.format("无效的序列ID格式: lastSeqIdStr='%s'", lastSeqIdStr), e);
+                    String.format("无效的序列ID格式: lastSeqIdStr='%s'", lastSeqIdStr), e);
         }
 
         return seqIdList;
@@ -101,7 +107,7 @@ public class CharacterPoolRecordServiceTest {
      * 适用于已知lastSeqId为正数且大于minSeqId的场景
      *
      * @param lastSeqId 最后一个序列ID
-     * @param minSeqId 最小序列ID
+     * @param minSeqId  最小序列ID
      * @return 序列ID字符串列表
      */
     private List<String> initSeqIdListSimple(int lastSeqId, int minSeqId) {
