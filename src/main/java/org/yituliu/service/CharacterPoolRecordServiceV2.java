@@ -2,8 +2,6 @@ package org.yituliu.service;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import jakarta.servlet.http.HttpServletRequest;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.yituliu.common.enums.ResultCode;
@@ -11,9 +9,10 @@ import org.yituliu.common.exception.ServiceException;
 import org.yituliu.common.utils.IdGenerator;
 import org.yituliu.common.utils.JsonMapper;
 import org.yituliu.common.utils.LogUtils;
-import org.yituliu.entity.dto.CharacterPoolRecordDTO;
-import org.yituliu.entity.dto.CharacterPoolRecordDataDTO;
-import org.yituliu.entity.dto.CharacterPoolRecordResponseDTO;
+import org.yituliu.entity.dto.pool.record.response.CharacterPoolRecordDTO;
+import org.yituliu.entity.dto.pool.record.response.CharacterPoolRecordDataDTO;
+import org.yituliu.entity.dto.pool.record.response.CharacterPoolRecordResponseDTO;
+import org.yituliu.entity.dto.pool.record.response.CharacterPoolRecordResponseWapperDTO;
 import org.yituliu.entity.log.BatchProcessResult;
 import org.yituliu.entity.po.CharacterPoolRecord;
 import org.yituliu.mapper.CharacterPoolRecordMapper;
@@ -37,7 +36,6 @@ import static org.yituliu.util.UrlEncodeUtil.smartUrlEncode;
 public class CharacterPoolRecordServiceV2 {
 
 
-
     private static final Set<String> POOL_TYPES = Set.of(
             "E_CharacterGachaPoolType_Special",
             "E_CharacterGachaPoolType_Standard",
@@ -49,7 +47,9 @@ public class CharacterPoolRecordServiceV2 {
     private static final int RETRY_COUNT = 3; // 重试次数
     private static final long RETRY_DELAY_MS = 1000; // 重试延迟
 
-    private final String CHARACTER_RECORD_API = "https://endfield.hypergryph.com/webview/api/record/char";
+//        private final String CHARACTER_RECORD_API = "https://endfield.hypergryph.com/webview/api/record/char";
+    private final String CHARACTER_RECORD_API = "http://127.0.0.1:10010/character_pool_record";
+
     private final String Lang = "zh-cn";
 
     private final CharacterPoolRecordMapper characterPoolRecordMapper;
@@ -72,9 +72,9 @@ public class CharacterPoolRecordServiceV2 {
 
         // 配置线程池
         this.asyncExecutor = new ThreadPoolExecutor(
-                20, // 核心线程数
-                50, // 最大线程数
-                60L, // 空闲线程存活时间
+                4, // 核心线程数
+                8, // 最大线程数
+                30L, // 空闲线程存活时间
                 TimeUnit.SECONDS,
                 new LinkedBlockingQueue<>(1000), // 队列容量
                 new ThreadFactoryBuilder().setNameFormat("character-pool-async-%d").build(),
@@ -93,66 +93,68 @@ public class CharacterPoolRecordServiceV2 {
         // 记录任务开始日志，包含用户ID和URL信息
         LogUtils.info("开始处理角色抽卡记录导入任务:  用户: {}", uid);
         try {
-        // 参数校验：检查用户ID是否为空
-        if (uid == null) {
-            throw new ServiceException(ResultCode.USER_NOT_EXIST);
-        }
-
-        // 解析URL参数，提取token和server_id等信息
-        Map<String, String> urlParams = UrlParser.parseEndfieldGachaUrl(url);
-
-        // 从URL参数中获取服务器ID
-        String serverId = urlParams.get("server_id");
-
-        List<CharacterPoolRecord> characterPoolRecordList = new ArrayList<>();
-
-        // 并发处理所有池类型：为每个卡池类型创建异步任务
-        List<CompletableFuture<List<CharacterPoolRecordDTO>>> futures = new ArrayList<>();
-
-        // 遍历所有卡池类型，为每种类型创建异步处理任务
-        for (String poolType : POOL_TYPES) {
-            List<CharacterPoolRecordDTO> characterPoolRecordDTOList = requestCharacterPoolRecordAPI(urlParams, poolType, null);
-            String lastSeqId = characterPoolRecordDTOList.get(characterPoolRecordDTOList.size() - 1).getSeqId();
-            List<String> seqIdList = initSeqIdList(lastSeqId, 1);
-
-            for (String seqId : seqIdList) {
-                CompletableFuture<List<CharacterPoolRecordDTO>> future = CompletableFuture
-                        .supplyAsync(() -> requestCharacterPoolRecordAPI(urlParams, poolType, seqId), asyncExecutor);
-                futures.add(future);
+            // 参数校验：检查用户ID是否为空
+            if (uid == null) {
+                throw new ServiceException(ResultCode.USER_NOT_EXIST);
             }
 
+            // 解析URL参数，提取token和server_id等信息
+            Map<String, String> urlParams = UrlParser.parseEndfieldGachaUrl(url);
 
-            // 等待所有池类型处理完成：使用CompletableFuture.allOf等待所有任务完成
-            CompletableFuture<Void> allFutures = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
+            // 从URL参数中获取服务器ID
+            String serverId = urlParams.get("server_id");
 
-            List<CharacterPoolRecordDTO> allFuturesResult = allFutures.thenApply(v -> {
-                List<CharacterPoolRecordDTO> result = new ArrayList<>();
-                for (CompletableFuture<List<CharacterPoolRecordDTO>> future : futures) {
-                    try {
-                        // 获取单个任务的结果并合并到总结果中
-                        result.addAll(future.get());
-                    } catch (Exception e) {
-                        // 记录获取结果失败的错误日志
-                        LogUtils.error("获取处理结果失败", e);
-                    }
+            List<CharacterPoolRecord> characterPoolRecordList = new ArrayList<>();
+
+            // 并发处理所有池类型：为每个卡池类型创建异步任务
+            List<CompletableFuture<List<CharacterPoolRecordDTO>>> futures = new ArrayList<>();
+
+            // 遍历所有卡池类型，为每种类型创建异步处理任务
+            for (String poolType : POOL_TYPES) {
+                List<CharacterPoolRecordDTO> characterPoolRecordDTOList = requestCharacterPoolRecordAPI(urlParams, poolType, null);
+                characterPoolRecordDTOList.forEach(e -> {
+                    characterPoolRecordList.add(convertToEntity(e, uid, serverId, poolType));
+                });
+                String lastSeqId = characterPoolRecordDTOList.get(characterPoolRecordDTOList.size() - 1).getSeqId();
+                List<String> seqIdList = initSeqIdList(lastSeqId, 1);
+
+                for (String seqId : seqIdList) {
+
+                    CompletableFuture<List<CharacterPoolRecordDTO>> future = CompletableFuture
+                            .supplyAsync(() -> requestCharacterPoolRecordAPI(urlParams, poolType, seqId), asyncExecutor);
+                    futures.add(future);
                 }
-                return result;
-            }).join();
 
-            allFuturesResult.forEach(e -> {
-//                characterPoolRecordList.add(convertToEntity(e, uid, serverId, poolType));
-            });
-        }
 
-       // 批量插入数据库 - 利用数据库唯一约束：将收集到的所有记录批量插入数据库
-       BatchProcessResult batchProcessResult = batchInsertWithUniqueIndex(characterPoolRecordList);
+                // 等待所有池类型处理完成：使用CompletableFuture.allOf等待所有任务完成
+                CompletableFuture<Void> allFutures = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
+                getDuration(startTime,"异步获取全部数据",uid);
 
-        // 计算处理耗时
-        long duration = System.currentTimeMillis() - startTime;
-        // 记录任务完成日志，包含处理统计信息
-       LogUtils.info("任务完成:uid {}, 耗时: {}ms, 新增: {}, 重复: {}, 失败: {}",
-                uid, duration, batchProcessResult.getSuccessCount(), batchProcessResult.getDuplicatedCount(), batchProcessResult.getFailedCount());
-        return CompletableFuture.completedFuture(batchProcessResult);
+                List<CharacterPoolRecordDTO> allFuturesResult = allFutures.thenApply(v -> {
+                    List<CharacterPoolRecordDTO> result = new ArrayList<>();
+                    for (CompletableFuture<List<CharacterPoolRecordDTO>> future : futures) {
+                        try {
+                            // 获取单个任务的结果并合并到总结果中
+                            result.addAll(future.get());
+                        } catch (Exception e) {
+                            // 记录获取结果失败的错误日志
+                            LogUtils.error("获取处理结果失败", e);
+                        }
+                    }
+                    return result;
+                }).join();
+
+                allFuturesResult.forEach(e -> {
+                characterPoolRecordList.add(convertToEntity(e, uid, serverId, poolType));
+                });
+            }
+            getDuration(startTime,"数据二次处理",uid);
+            // 批量插入数据库 - 利用数据库唯一约束：将收集到的所有记录批量插入数据库
+            BatchProcessResult batchProcessResult = batchInsertWithUniqueIndex(characterPoolRecordList);
+
+            getDuration(startTime,"全部数据插入",uid);
+
+            return CompletableFuture.completedFuture(batchProcessResult);
         } catch (Exception e) {
             // 处理异常情况：记录错误日志并返回错误结果
             LogUtils.error("处理任务失败: {}", uid, e);
@@ -173,8 +175,15 @@ public class CharacterPoolRecordServiceV2 {
         }
     }
 
+    private void getDuration(Long startTime,String taskName,String uid){
+        // 计算处理耗时
+        long duration = System.currentTimeMillis() - startTime;
+        // 记录任务完成日志，包含处理统计信息
+        LogUtils.info("当前进度{} :uid {}, 耗时: {}ms",
+                taskName,uid, duration);
+    }
 
-    private BatchProcessResult batchInsertWithUniqueIndex(List<CharacterPoolRecord> characterPoolRecordList){
+    private BatchProcessResult batchInsertWithUniqueIndex(List<CharacterPoolRecord> characterPoolRecordList) {
         // 创建处理结果对象
         BatchProcessResult result = new BatchProcessResult();
         // 检查记录列表是否为空
@@ -218,7 +227,7 @@ public class CharacterPoolRecordServiceV2 {
 
             } catch (Exception e) {
                 // 批量插入失败：记录警告日志，包含批次范围和错误原因
-                LogUtils.error("批处理插入遇到重复数据或其他错误: {}-{}, 原因: {}", i, endIndex, e.getMessage());
+//                LogUtils.error("批处理插入遇到重复数据或其他错误: {}-{}, 原因: {}", i, endIndex, e.getMessage());
 
                 // 尝试逐条插入，捕获重复错误：当批量插入失败时，改为逐条插入
                 for (CharacterPoolRecord record : batch) {
@@ -237,7 +246,7 @@ public class CharacterPoolRecordServiceV2 {
                             // 更新总重复记录计数器
                             totalDuplicatedRecords.incrementAndGet();
                             // 记录调试日志：显示重复记录信息
-                            LogUtils.info("检测到重复记录: {}-{}", record.getPoolName(), record.getSeqId());
+//                            LogUtils.info("检测到重复记录: {}-{}", record.getPoolName(), record.getSeqId());
                         } else {
                             // 其他错误处理：增加失败计数器
                             failedCount++;
@@ -324,14 +333,12 @@ public class CharacterPoolRecordServiceV2 {
     }
 
 
-
-
-
-
     /**
      * 请求API
      */
     private List<CharacterPoolRecordDTO> requestCharacterPoolRecordAPI(Map<String, String> urlParams, String poolType, String seqId) {
+        // 记录任务开始时间，用于计算处理耗时
+        long startTime = System.currentTimeMillis();
         String token = urlParams.get("token");
         String server_id = urlParams.get("server_id");
 
@@ -340,6 +347,13 @@ public class CharacterPoolRecordServiceV2 {
         if (seqId != null) {
             url += "&seq_id=" + seqId;
         }
+
+//        // 打印URL中?之后的参数字符串
+//        if (url.contains("?")) {
+//            String queryString = url.substring(url.indexOf("?") + 1);
+//            LogUtils.info("API请求URL参数: {}", queryString);
+//        }
+
 
         try {
             Map<String, String> headers = new HashMap<>();
@@ -368,7 +382,7 @@ public class CharacterPoolRecordServiceV2 {
                 }
             }
 
-
+            getDuration(startTime,"请求结束","");
             return Collections.emptyList();
         } catch (IOException e) {
             LogUtils.error("API请求失败: {}", url, e);
@@ -400,40 +414,6 @@ public class CharacterPoolRecordServiceV2 {
         return record;
     }
 
-    public List<CharacterPoolRecord> pullCharacterPoolRecordData(Map<String, String> urlParams, String poolType, String seqId) {
-        // 创建记录列表，用于存储处理结果
-        List<CharacterPoolRecord> records = new ArrayList<>();
-
-        try {
-            // 分页控制变量：标识是否还有更多数据需要获取
-            Boolean hasMore = true;
-            // 序列ID：用于分页请求，初始为null表示从第一页开始
-            String poolSeqId = null;
-            // 页面计数器：限制最大页数，防止无限循环
-            int pageCount = 0;
-
-
-        } catch (Exception e) {
-            // 记录处理失败的错误日志，但不中断整个流程
-            LogUtils.error("处理池类型失败: {}", poolType, e);
-        }
-
-        // 返回处理完成的记录列表
-        return records;
-
-    }
-
-    /**
-     * 同步版本，用于测试和小批量数据
-     */
-    public BatchProcessResult saveCharacterPoolRecordSync(HttpServletRequest httpServletRequest, String uid, String url) {
-        return saveCharacterPoolRecordAsync(httpServletRequest, uid, url).join();
-    }
-
-
-
-
-
 
 
     /**
@@ -461,8 +441,6 @@ public class CharacterPoolRecordServiceV2 {
     }
 
 
-
-
     /**
      * 获取用户角色卡池记录（同步版本）
      */
@@ -488,8 +466,6 @@ public class CharacterPoolRecordServiceV2 {
             }
         }
     }
-
-
 
 
     // 线程工厂构建器

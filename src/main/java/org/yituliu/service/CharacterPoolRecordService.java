@@ -6,8 +6,9 @@ import org.springframework.stereotype.Service;
 import org.yituliu.common.enums.ResultCode;
 import org.yituliu.common.exception.ServiceException;
 import org.yituliu.common.utils.IdGenerator;
-import org.yituliu.entity.dto.CharacterPoolRecordDTO;
-import org.yituliu.entity.dto.CharacterPoolRecordResponseDTO;
+import org.yituliu.common.utils.LogUtils;
+import org.yituliu.entity.dto.pool.record.response.CharacterPoolRecordDTO;
+import org.yituliu.entity.dto.pool.record.response.CharacterPoolRecordResponseDTO;
 import org.yituliu.entity.po.CharacterPoolRecord;
 import org.yituliu.mapper.CharacterPoolRecordMapper;
 
@@ -53,6 +54,8 @@ public class CharacterPoolRecordService {
     }
 
     public String saveCharacterPoolRecord(HttpServletRequest httpServletRequest, String uid, String url) {
+        // 记录任务开始时间，用于计算处理耗时
+        long startTime = System.currentTimeMillis();
 //        String uid = httpServletRequest.getHeader("uid");
         if (uid == null) {
             throw new ServiceException(ResultCode.USER_NOT_EXIST);
@@ -67,6 +70,7 @@ public class CharacterPoolRecordService {
         //根据卡池名称进行分组，他的value依旧是一个map，map的key是卡池名称和seqId组合成的一个临时联合索引，用于判断这条角色抽卡记录是否已经存在
         Map<String, Map<String, Integer>> existingCharacterPoolRecordGroupByPoolName = new HashMap<>();
 
+        getDuration(startTime,"开始从终末地API数据获取",uid);
         for (String poolType : POOL_TYPES) {
 
             Boolean hasMore = true;
@@ -90,6 +94,7 @@ public class CharacterPoolRecordService {
 
                     if (!existingCharacterPoolRecordGroupByPoolName.containsKey(poolName)) {
                         //角色抽卡记录表查询构造器
+                        System.out.println("查询旧数据");
                         LambdaQueryWrapper<CharacterPoolRecord> queryWrapper = new LambdaQueryWrapper<>();
                         queryWrapper.eq(CharacterPoolRecord::getUid, uid);
                         queryWrapper.eq(CharacterPoolRecord::getPoolName, poolName);
@@ -137,18 +142,32 @@ public class CharacterPoolRecordService {
                 }
             }
 
-
+            getDuration(startTime,poolType+"数据获取",uid);
         }
+
+        getDuration(startTime,"全部数据获取",uid);
 
         if(!newCharacterPoolRecordList.isEmpty()){
             characterPoolRecordMapper.batchInsert(newCharacterPoolRecordList);
         }
 
+        getDuration(startTime,"全部数据插入",uid);
+
         return "本次导入"+newCharacterPoolRecordList.size()+"条角色卡池记录";
+    }
+
+    private void getDuration(Long startTime,String taskName,String uid){
+        // 计算处理耗时
+        long duration = System.currentTimeMillis() - startTime;
+        // 记录任务完成日志，包含处理统计信息
+        LogUtils.info("当前进度{} :uid {}, 耗时: {}ms",
+                taskName,uid, duration);
     }
 
 
     private CharacterPoolRecordResponseDTO requestCharacterPoolRecordAPI(Map<String, String> urlParams, String poolType, String seqId) {
+        // 记录任务开始时间，用于计算处理耗时
+        long startTime = System.currentTimeMillis();
         String token = urlParams.get("token");
         String server_id = urlParams.get("server_id");
 
@@ -181,6 +200,7 @@ public class CharacterPoolRecordService {
             // 使用Jackson将JSON字符串映射到GachaResponseDTO实体类
             ObjectMapper objectMapper = new ObjectMapper();
             CharacterPoolRecordResponseDTO characterPoolRecordResponseDTO = objectMapper.readValue(response, CharacterPoolRecordResponseDTO.class);
+            getDuration(startTime,"请求结束","");
             return characterPoolRecordResponseDTO;
 
         } catch (IOException e) {

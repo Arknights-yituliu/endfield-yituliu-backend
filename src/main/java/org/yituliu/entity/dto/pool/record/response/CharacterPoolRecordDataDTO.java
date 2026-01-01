@@ -1,4 +1,4 @@
-package org.yituliu.entity.dto;
+package org.yituliu.entity.dto.pool.record.response;
 
 import java.util.List;
 

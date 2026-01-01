@@ -10,8 +10,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.yituliu.common.enums.ResultCode;
 import org.yituliu.common.exception.ServiceException;
 import org.yituliu.common.utils.IdGenerator;
-import org.yituliu.entity.dto.CharacterPoolRecordDTO;
-import org.yituliu.entity.dto.CharacterPoolRecordResponseDTO;
+import org.yituliu.entity.dto.pool.record.response.CharacterPoolRecordDTO;
+import org.yituliu.entity.dto.pool.record.response.CharacterPoolRecordResponseDTO;
 import org.yituliu.entity.po.CharacterPoolRecord;
 import org.yituliu.mapper.CharacterPoolRecordMapper;
 

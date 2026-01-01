@@ -1,18 +1,21 @@
 package org.yituliu.data;
 
+import jakarta.annotation.Resource;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.yituliu.common.utils.JsonMapper;
-import org.yituliu.entity.dto.CharacterPoolRecordDTO;
+import org.yituliu.entity.dto.pool.record.response.CharacterPoolRecordDTO;
+import org.yituliu.service.CharacterPoolRecordService;
+import org.yituliu.service.CharacterPoolRecordServiceV2;
 import org.yituliu.util.FileUtil;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
 @SpringBootTest
 public class CharacterPoolRecordServiceTest {
+
 
     @Test
     void createCharacterPoolRecordTestData() {
@@ -20,18 +23,21 @@ public class CharacterPoolRecordServiceTest {
         int randomNum = ThreadLocalRandom.current().nextInt(100);
 
         List<CharacterPoolRecordDTO> testDataList = new ArrayList<>();
-        long seqId = 1;
-        for (int i = 0; i < 3000; i++) {
+        long seqId = 300;
+        for (int i = 0; i < 300; i++) {
             int num = ThreadLocalRandom.current().nextInt(100);
             CharacterPoolRecordDTO characterPoolRecordDTO = new CharacterPoolRecordDTO();
 
-
-            if (num < 20) {
-                characterPoolRecordDTO.setPoolId("普池");
-                characterPoolRecordDTO.setPoolName("普通卡池" + num);
-            } else {
+            int poolIdNum = ThreadLocalRandom.current().nextInt(4);
+            if (num < 5) {
+                characterPoolRecordDTO.setPoolId("启程池");
+                characterPoolRecordDTO.setPoolName("启程卡池");
+            } else if(num < 10){
+                characterPoolRecordDTO.setPoolId("普通池");
+                characterPoolRecordDTO.setPoolName("普池卡池"+poolIdNum);
+            }else {
                 characterPoolRecordDTO.setPoolId("限定池");
-                characterPoolRecordDTO.setPoolName("限定卡池" + num);
+                characterPoolRecordDTO.setPoolName("限定卡池"+poolIdNum);
             }
 
             characterPoolRecordDTO.setCharId("chr_0" + num);
@@ -41,8 +47,8 @@ public class CharacterPoolRecordServiceTest {
             characterPoolRecordDTO.setIsNew(true);
             long l = System.currentTimeMillis();
             characterPoolRecordDTO.setGachaTs("" + l);
-            characterPoolRecordDTO.setSeqId(seqId + "");
-            seqId++;
+            characterPoolRecordDTO.setSeqId(seqId-i + "");
+
             testDataList.add(characterPoolRecordDTO);
         }
 
@@ -52,73 +58,7 @@ public class CharacterPoolRecordServiceTest {
     }
 
 
-    @Test
-    void seqIdListTest() {
-        System.out.println(initSeqIdList("692", 540));
-    }
 
-    /**
-     * 初始化序列ID列表
-     * 从lastSeqId开始，每次递减5，生成序列ID集合
-     *
-     * @param lastSeqIdStr 最后一个序列ID的字符串形式
-     * @param minSeqId     最小序列ID（包含）
-     * @return 序列ID字符串列表，按降序排列
-     * @throws IllegalArgumentException 当输入参数无效时抛出
-     */
-    private List<String> initSeqIdList(String lastSeqIdStr, Integer minSeqId) {
-        // 参数校验
-        if (lastSeqIdStr == null || lastSeqIdStr.trim().isEmpty()) {
-            throw new IllegalArgumentException("lastSeqIdStr不能为空");
-        }
-        if (minSeqId == null) {
-            throw new IllegalArgumentException("minSeqId不能为空");
-        }
 
-        List<String> seqIdList = new ArrayList<>();
 
-        try {
-            // 解析并校验lastSeqId
-            int lastSeqId = Integer.parseInt(lastSeqIdStr.trim());
-            if (lastSeqId < minSeqId) {
-                // 如果起始值小于最小值，直接返回空列表
-                return seqIdList;
-            }
-
-            // 优化：预估集合大小，减少扩容开销
-            int estimatedSize = ((lastSeqId - minSeqId) / 5) + 1;
-            seqIdList = new ArrayList<>(estimatedSize);
-
-            // 生成序列ID列表
-            for (int i = lastSeqId; i >= minSeqId; i -= 5) {
-                seqIdList.add(String.valueOf(i));
-            }
-
-        } catch (NumberFormatException e) {
-            throw new IllegalArgumentException(
-                    String.format("无效的序列ID格式: lastSeqIdStr='%s'", lastSeqIdStr), e);
-        }
-
-        return seqIdList;
-    }
-
-    /**
-     * 初始化序列ID列表（简化版本）
-     * 适用于已知lastSeqId为正数且大于minSeqId的场景
-     *
-     * @param lastSeqId 最后一个序列ID
-     * @param minSeqId  最小序列ID
-     * @return 序列ID字符串列表
-     */
-    private List<String> initSeqIdListSimple(int lastSeqId, int minSeqId) {
-        if (lastSeqId < minSeqId) {
-            return Collections.emptyList();
-        }
-
-        List<String> seqIdList = new ArrayList<>((lastSeqId - minSeqId) / 5 + 3);
-        for (int i = lastSeqId; i >= minSeqId; i -= 5) {
-            seqIdList.add(String.valueOf(i));
-        }
-        return seqIdList;
-    }
 }
