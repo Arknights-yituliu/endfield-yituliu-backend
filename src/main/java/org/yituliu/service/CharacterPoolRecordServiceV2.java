@@ -12,7 +12,6 @@ import org.yituliu.common.utils.LogUtils;
 import org.yituliu.entity.dto.pool.record.response.CharacterPoolRecordDTO;
 import org.yituliu.entity.dto.pool.record.response.CharacterPoolRecordDataDTO;
 import org.yituliu.entity.dto.pool.record.response.CharacterPoolRecordResponseDTO;
-import org.yituliu.entity.dto.pool.record.response.CharacterPoolRecordResponseWapperDTO;
 import org.yituliu.entity.log.BatchProcessResult;
 import org.yituliu.entity.po.CharacterPoolRecord;
 import org.yituliu.mapper.CharacterPoolRecordMapper;
@@ -106,6 +105,10 @@ public class CharacterPoolRecordServiceV2 {
 
             List<CharacterPoolRecord> characterPoolRecordList = new ArrayList<>();
 
+
+            Integer existingMaxSeqId = characterPoolRecordMapper.getMaxSeqIdNumber(uid);
+
+
             // 并发处理所有池类型：为每个卡池类型创建异步任务
             List<CompletableFuture<List<CharacterPoolRecordDTO>>> futures = new ArrayList<>();
 
@@ -116,7 +119,7 @@ public class CharacterPoolRecordServiceV2 {
                     characterPoolRecordList.add(convertToEntity(e, uid, serverId, poolType));
                 });
                 String lastSeqId = characterPoolRecordDTOList.get(characterPoolRecordDTOList.size() - 1).getSeqId();
-                List<String> seqIdList = initSeqIdList(lastSeqId, 1);
+                List<String> seqIdList = initSeqIdList(lastSeqId, existingMaxSeqId);
 
                 for (String seqId : seqIdList) {
 
@@ -152,7 +155,7 @@ public class CharacterPoolRecordServiceV2 {
             // 批量插入数据库 - 利用数据库唯一约束：将收集到的所有记录批量插入数据库
             BatchProcessResult batchProcessResult = batchInsertWithUniqueIndex(characterPoolRecordList);
 
-            getDuration(startTime,"全部数据插入",uid);
+            getDuration(startTime-100,"全部数据插入",uid);
 
             return CompletableFuture.completedFuture(batchProcessResult);
         } catch (Exception e) {
@@ -316,7 +319,7 @@ public class CharacterPoolRecordServiceV2 {
         }
 
         if (existingSeqId == null) {
-            throw new IllegalArgumentException("minSeqId不能为空");
+            existingSeqId = 0;
         }
 
         int lastSeqId = Integer.parseInt(lastSeqIdStr.trim());
@@ -325,7 +328,7 @@ public class CharacterPoolRecordServiceV2 {
 //            return Collections.emptyList();
 //        }
 
-        List<String> seqIdList = new ArrayList<>((lastSeqId - existingSeqId) / 5 + 3);
+        List<String> seqIdList = new ArrayList<>();
         for (int i = lastSeqId; i >= existingSeqId; i -= 5) {
             seqIdList.add(String.valueOf(i));
         }

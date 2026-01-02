@@ -76,7 +76,7 @@ public class TestController {
         CharacterPoolRecordResponseDTO response = new CharacterPoolRecordResponseDTO();
         CharacterPoolRecordDataDTO data = new CharacterPoolRecordDataDTO();
         data.setList(resultList);
-        data.setHasMore(true); // 检查是否还有更多数据
+        data.setHasMore(!resultList.isEmpty()); // 检查是否还有更多数据
         response.setData(data);
         response.setCode(0);
         response.setMsg("成功");

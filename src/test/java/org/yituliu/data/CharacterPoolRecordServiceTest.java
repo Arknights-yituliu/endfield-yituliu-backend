@@ -23,7 +23,7 @@ public class CharacterPoolRecordServiceTest {
         int randomNum = ThreadLocalRandom.current().nextInt(100);
 
         List<CharacterPoolRecordDTO> testDataList = new ArrayList<>();
-        long seqId = 300;
+        long seqId = 1200;
         for (int i = 0; i < 300; i++) {
             int num = ThreadLocalRandom.current().nextInt(100);
             CharacterPoolRecordDTO characterPoolRecordDTO = new CharacterPoolRecordDTO();

@@ -62,13 +62,7 @@ public class CharacterPoolRecordResponseDTO {
         this.msg = msg;
     }
 
-    /**
-     * 判断响应是否成功
-     * @return 成功返回true，失败返回false
-     */
-    public boolean isSuccess() {
-        return code != null && code == 0;
-    }
+   
 
     @Override
     public String toString() {

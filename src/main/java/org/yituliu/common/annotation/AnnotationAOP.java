@@ -29,6 +29,7 @@ public class AnnotationAOP {
         MethodSignature signature = (MethodSignature) joinPoint.getSignature();
         Method method = signature.getMethod();
 
+        System.out.println("注解生效了");
         // 获取方法参数
         Object[] args = joinPoint.getArgs();
 

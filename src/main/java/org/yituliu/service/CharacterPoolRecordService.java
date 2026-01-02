@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import org.yituliu.common.enums.ResultCode;
 import org.yituliu.common.exception.ServiceException;
 import org.yituliu.common.utils.IdGenerator;
+import org.yituliu.common.utils.JsonMapper;
 import org.yituliu.common.utils.LogUtils;
 import org.yituliu.entity.dto.pool.record.response.CharacterPoolRecordDTO;
 import org.yituliu.entity.dto.pool.record.response.CharacterPoolRecordResponseDTO;
@@ -34,7 +35,8 @@ public class CharacterPoolRecordService {
             "E_CharacterGachaPoolType_Beginner"
     );
 
-    private final String CHARACTER_RECORD_API = "https://endfield.hypergryph.com/webview/api/record/char";
+//    private final String CHARACTER_RECORD_API = "https://endfield.hypergryph.com/webview/api/record/char";
+    private final String CHARACTER_RECORD_API = "http://127.0.0.1:10010/character_pool_record";
 
     private final String Lang = "zh-cn";
 
@@ -94,7 +96,7 @@ public class CharacterPoolRecordService {
 
                     if (!existingCharacterPoolRecordGroupByPoolName.containsKey(poolName)) {
                         //角色抽卡记录表查询构造器
-                        System.out.println("查询旧数据");
+
                         LambdaQueryWrapper<CharacterPoolRecord> queryWrapper = new LambdaQueryWrapper<>();
                         queryWrapper.eq(CharacterPoolRecord::getUid, uid);
                         queryWrapper.eq(CharacterPoolRecord::getPoolName, poolName);
@@ -197,10 +199,13 @@ public class CharacterPoolRecordService {
 
             String response = OkHttpUtil.getWithHeaders(url, headers);
 
+
             // 使用Jackson将JSON字符串映射到GachaResponseDTO实体类
-            ObjectMapper objectMapper = new ObjectMapper();
-            CharacterPoolRecordResponseDTO characterPoolRecordResponseDTO = objectMapper.readValue(response, CharacterPoolRecordResponseDTO.class);
-            getDuration(startTime,"请求结束","");
+
+
+            CharacterPoolRecordResponseDTO characterPoolRecordResponseDTO = JsonMapper.parseObject(response, CharacterPoolRecordResponseDTO.class);
+
+            getDuration(startTime,"请求结束",url);
             return characterPoolRecordResponseDTO;
 
         } catch (IOException e) {

@@ -21,5 +21,20 @@ public interface CharacterPoolRecordMapper extends BaseMapper<CharacterPoolRecor
      * @return 插入记录数
      */
     int batchInsert(@Param("list") List<CharacterPoolRecord> list);
+
    
+    /**
+     * 查询指定uid下的最大seq_id值（数字版本）
+     * @param uid 用户ID
+     * @return 最大seq_id值，如果不存在则返回null
+     */
+    Integer getMaxSeqIdNumber(@Param("uid") String uid);
+
+    /**
+     * 查询指定uid下的最大seq_id值（字符串版本）
+     * @param uid 用户ID
+     * @return 最大seq_id字符串，如果不存在则返回null
+     */
+    String getMaxSeqIdString(@Param("uid") String uid);
+
 }
