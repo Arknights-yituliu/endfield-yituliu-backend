@@ -35,8 +35,8 @@ public class CharacterPoolRecordService {
             "E_CharacterGachaPoolType_Beginner"
     );
 
-//    private final String CHARACTER_RECORD_API = "https://endfield.hypergryph.com/webview/api/record/char";
-    private final String CHARACTER_RECORD_API = "http://127.0.0.1:10010/character_pool_record";
+    private final String CHARACTER_RECORD_API = "https://endfield.hypergryph.com/webview/api/record/char";
+//    private final String CHARACTER_RECORD_API = "http://127.0.0.1:10010/character_pool_record";
 
     private final String Lang = "zh-cn";
 

@@ -84,7 +84,7 @@ public class TestController {
         return response;
     }
 
-    @RedisCacheable(key = "character_pool_record")
+//    @RedisCacheable(key = "character_pool_record")
     private List<CharacterPoolRecordDTO> getTestCharacterPoolRecord() {
         String s = FileUtil.readFileToString("src/test/resources/local/character_pool_record.json");
 
