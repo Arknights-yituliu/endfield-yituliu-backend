@@ -21,21 +21,26 @@ public class CharacterPoolRecordResponseDTO {
      * 响应消息
      */
     private String msg;
+
+    private String poolType;
     
     /**
      * 默认构造函数
      */
     public CharacterPoolRecordResponseDTO() {
     }
-    
-    /**
-     * 全参构造函数
-     */
-    public CharacterPoolRecordResponseDTO(Integer code, CharacterPoolRecordDataDTO data, String msg) {
+
+    public CharacterPoolRecordResponseDTO(Integer code, CharacterPoolRecordDataDTO data, String msg, String poolType) {
         this.code = code;
         this.data = data;
         this.msg = msg;
+        this.poolType = poolType;
     }
+
+    /**
+     * 全参构造函数
+     */
+
     
     // Getter和Setter方法
     public Integer getCode() {
@@ -62,14 +67,21 @@ public class CharacterPoolRecordResponseDTO {
         this.msg = msg;
     }
 
-   
+    public String getPoolType() {
+        return poolType;
+    }
+
+    public void setPoolType(String poolType) {
+        this.poolType = poolType;
+    }
 
     @Override
     public String toString() {
-        return "GachaResponseDTO{" +
+        return "CharacterPoolRecordResponseDTO{" +
                 "code=" + code +
                 ", data=" + data +
                 ", msg='" + msg + '\'' +
+                ", poolType='" + poolType + '\'' +
                 '}';
     }
 }
