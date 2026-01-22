@@ -45,7 +45,7 @@ public class CharacterPoolRecordServiceV2 {
     private static final int RETRY_COUNT = 3; // 重试次数
     private static final long RETRY_DELAY_MS = 1000; // 重试延迟
 
-    private final String CHARACTER_RECORD_API = "https://endfield.hypergryph.com/webview/api/record/char";
+    private final String CHARACTER_RECORD_API = "https://ef-webview.hypergryph.com/api/record/char";
 //    private final String CHARACTER_RECORD_API = "http://127.0.0.1:10010/character_pool_record";
 
     private final String Lang = "zh-cn";
@@ -100,7 +100,7 @@ public class CharacterPoolRecordServiceV2 {
             Map<String, String> urlParams = UrlParser.parseEndfieldGachaUrl(url);
 
             // 从URL参数中获取服务器ID
-            String serverId = urlParams.get("server_id");
+            String serverId = urlParams.get("server");
 
             ArrayList<CharacterPoolRecord> characterPoolRecordList = new ArrayList<>();
 
@@ -383,10 +383,12 @@ public class CharacterPoolRecordServiceV2 {
     private CharacterPoolRecordResponseDTO requestCharacterPoolRecordAPI(Map<String, String> urlParams, String poolType, String seqId,String userName) {
         // 记录任务开始时间，用于计算处理耗时
         long startTime = System.currentTimeMillis();
-        String token = urlParams.get("token");
-        String server_id = urlParams.get("server_id");
+        String token = urlParams.get("u8_token");
+        String server_id = urlParams.get("server");
 
         String encodeToken = smartUrlEncode(token);
+//        String encodeToken =    token;
+
         String url = CHARACTER_RECORD_API + "?lang=" + Lang + "&pool_type=" + poolType + "&token=" + encodeToken + "&server_id=" + server_id;
         if (seqId != null) {
             url += "&seq_id=" + seqId;
@@ -401,18 +403,26 @@ public class CharacterPoolRecordServiceV2 {
 
         try {
             Map<String, String> headers = new HashMap<>();
-            headers.put("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:146.0) Gecko/20100101 Firefox/146.0");
             headers.put("Accept", "application/json, text/plain, */*");
-            headers.put("Accept-Language", "zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2");
             headers.put("Accept-Encoding", "gzip, deflate, br, zstd");
-            headers.put("Connection", "keep-alive");
+            headers.put("Accept-Language", "zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2");
+//            headers.put("Cache-Control","no-cache");
+//            headers.put("Connection", "keep-alive");
+//            headers.put("Cookie","_ga=GA1.2.1904220515.1705644583; _ga_VMLPESWL6R=GS1.1.1737293308.86.1.1737293335.33.0.0");
+            headers.put("Host", "ef-webview.hypergryph.com");
+//            headers.put("Pragma", "no-cache");
+//            headers.put("Priority", "u=0");
+
+
+
             headers.put("Sec-Fetch-Dest", "empty");
             headers.put("Sec-Fetch-Mode", "cors");
             headers.put("Sec-Fetch-Site", "same-origin");
-            headers.put("Priority", "u=0");
-            headers.put("Host", "endfield.hypergryph.com");
+            headers.put("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:146.0) Gecko/20100101 Firefox/146.0");
+
 
             String response = OkHttpUtil.getWithHeaders(url, headers);
+
             //            ObjectMapper objectMapper = new ObjectMapper();
             //            return objectMapper.readValue(response, CharacterPoolRecordResponseDTO.class);
             CharacterPoolRecordResponseDTO characterPoolRecordResponseDTO = JsonMapper.parseObject(response, new TypeReference<>() {

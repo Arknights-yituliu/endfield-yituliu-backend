@@ -17,6 +17,16 @@ public class OkHttpUtil {
             .connectTimeout(10, TimeUnit.SECONDS)  // 连接超时时间
             .readTimeout(10, TimeUnit.SECONDS)     // 读取超时时间
             .writeTimeout(10, TimeUnit.SECONDS)    // 写入超时时间
+            .addInterceptor(new Interceptor() {
+                @Override
+                public Response intercept(Chain chain) throws IOException {
+                    Request request = chain.request()
+                            .newBuilder()
+                            .removeHeader("Accept-Encoding") // 移除Accept-Encoding头，避免服务器返回压缩数据
+                            .build();
+                    return chain.proceed(request);
+                }
+            })
             .build();
 
     /**

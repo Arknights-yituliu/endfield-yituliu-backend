@@ -79,14 +79,15 @@ public class UrlParser {
      */
     public static Map<String, String> parseEndfieldGachaUrl(String urlString) {
         Map<String, String> result = new HashMap<>();
-        
+//        System.out.println(urlString);
         // 解析基本参数
         result.put("lang", getParameter(urlString, "lang", "zh-cn"));
         result.put("seq_id", getParameter(urlString, "seq_id", "10"));
         result.put("pool_type", getParameter(urlString, "pool_type", "E_CharacterGachaPoolType_Special"));
         result.put("token", getParameter(urlString, "token", ""));
-        result.put("server_id", getParameter(urlString, "server_id", "40"));
-        
+        result.put("u8_token", getParameter(urlString, "u8_token","111"));
+        result.put("server_id", getParameter(urlString, "server_id", "1"));
+        result.put("server", getParameter(urlString, "server", "1"));
         return result;
     }
     

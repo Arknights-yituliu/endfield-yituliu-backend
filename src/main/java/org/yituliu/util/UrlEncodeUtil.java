@@ -1,8 +1,11 @@
 package org.yituliu.util;
 
+import org.yituliu.common.utils.LogUtils;
+
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.logging.Logger;
 
 /**
  * URL编码工具类
@@ -55,13 +58,13 @@ public class UrlEncodeUtil {
         if (str == null || str.trim().isEmpty()) {
             return str;
         }
-
-
         if (isUrlEncoded(str)) {
+//            LogUtils.info("已编码，返回原字符串");
             // 如果已经编码过，直接返回原字符串（不进行解码）
             return str;
         } else {
             // 如果未编码，进行URL编码
+//            LogUtils.info("未编码，进行URL编码");
             return URLEncoder.encode(str, StandardCharsets.UTF_8);
         }
     }
