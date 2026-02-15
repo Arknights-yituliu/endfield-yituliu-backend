@@ -7,8 +7,7 @@
     <insert id="batchInsert" >
         INSERT IGNORE INTO character_pool_record (
             id,
-            endfield_uid,
-            uid,
+            role_id,
             pool_id,
             pool_name,
             char_id,
@@ -25,8 +24,7 @@
         <foreach collection="list" item="item" separator=",">
             (
                 #{item.id},
-                #{item.endfieldUid},
-                #{item.uid},
+                #{item.roleId},
                 #{item.poolId},
                 #{item.poolName},
                 #{item.charId},
@@ -44,18 +42,18 @@
     </insert>
 
 
-    <!-- 查询指定uid下的最大seq_id值（数字版本） -->
+    <!-- 查询指定roleId下的最大seq_id值（数字版本） -->
     <select id="getMaxSeqIdNumber" resultType="java.lang.Integer">
         SELECT MAX(CAST(seq_id AS UNSIGNED))
         FROM character_pool_record 
-        WHERE uid = #{uid}
+        WHERE role_id = #{roleId}
     </select>
 
-    <!-- 查询指定uid下的最大seq_id值（字符串版本） -->
+    <!-- 查询指定roleId下的最大seq_id值（字符串版本） -->
     <select id="getMaxSeqIdString" resultType="java.lang.String">
         SELECT MAX(seq_id)
         FROM character_pool_record 
-        WHERE uid = #{uid}
+        WHERE role_id = #{roleId}
     </select>
 
 </mapper>

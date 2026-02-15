@@ -1,4 +1,4 @@
-package org.yituliu.util;
+package org.yituliu.common.utils;
 
 import org.yituliu.common.utils.LogUtils;
 
@@ -103,59 +103,27 @@ public class UrlEncodeUtil {
     }
 
     /**
-     * 通过特征判断字符串是否可能是URL编码的
-     * @param str 要判断的字符串
-     * @return true表示可能是URL编码的
-     */
-    private static boolean isLikelyUrlEncoded(String str) {
-        // 检查是否包含URL编码模式：%后跟两个十六进制数字
-        if (str.matches(".*%[0-9A-Fa-f]{2}.*")) {
-            return true;
-        }
-
-        // 检查是否包含常见的编码字符
-        String[] encodedPatterns = {"%20", "%2F", "%3F", "%3D", "%26", "%2B", "%25"};
-        for (String pattern : encodedPatterns) {
-            if (str.contains(pattern)) {
-                return true;
-            }
-        }
-
-        // 检查是否包含空格但未编码（空格在URL中应该被编码为%20或+）
-        if (str.contains(" ") && !str.contains("%20") && !str.contains("+")) {
-            return false;
-        }
-
-        return false;
-    }
-
-    /**
-     * 强制URL编码（无论是否已编码都进行编码）
+     * 将正常字符串转为URL编码字符串
      * @param str 要编码的字符串
      * @return URL编码后的字符串
      */
-    public static String forceUrlEncode(String str) {
+    public static String encode(String str) {
         if (str == null || str.trim().isEmpty()) {
             return str;
         }
-
         return URLEncoder.encode(str, StandardCharsets.UTF_8);
     }
 
     /**
-     * 强制URL解码（无论是否已编码都尝试解码）
+     * 将URL编码字符串转为正常字符串
      * @param str 要解码的字符串
-     * @return URL解码后的字符串
+     * @return 解码后的正常字符串
      */
-    public static String forceUrlDecode(String str) {
+    public static String decode(String str) {
         if (str == null || str.trim().isEmpty()) {
             return str;
         }
-
-        try {
-            return URLDecoder.decode(str, StandardCharsets.UTF_8);
-        } catch (Exception e) {
-            return str;
-        }
+        return URLDecoder.decode(str, StandardCharsets.UTF_8);
     }
+
 }

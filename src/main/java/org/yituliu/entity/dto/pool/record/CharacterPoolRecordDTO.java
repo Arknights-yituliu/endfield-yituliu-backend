@@ -1,4 +1,4 @@
-package org.yituliu.entity.dto.pool.record.response;
+package org.yituliu.entity.dto.pool.record;
 
 /**
  * 单个抽卡记录DTO

@@ -1,4 +1,4 @@
-package org.yituliu.entity.dto.pool.record.response;
+package org.yituliu.entity.dto.pool.record;
 
 /**
  * 抽卡API响应DTO

@@ -1,4 +1,4 @@
-package org.yituliu.util;
+package org.yituliu.common.utils;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
