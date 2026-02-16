@@ -43,8 +43,8 @@ public class PoolRecordController {
 
 
     @GetMapping("/pool-record/character/list")
-    public Result<List<CharacterPoolRecord>> getCharacterPoolRecordData(HttpServletRequest httpServletRequest, @RequestParam String roleId) {
+    public Result<List<CharacterPoolRecord>> getCharacterPoolRecordData(HttpServletRequest httpServletRequest, @RequestParam String taskId) {
 
-        return Result.success( characterPoolRecordService.getCharacterPoolRecordData(httpServletRequest, roleId));
+        return Result.success( characterPoolRecordService.getCharacterPoolRecordData(httpServletRequest, taskId));
     }
 }

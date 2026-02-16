@@ -160,20 +160,20 @@ public class CharacterPoolRecord {
         this.rarity = rarity;
     }
 
-    public Boolean getIsFree() {
+    public Boolean getFree() {
         return isFree;
     }
 
-    public void setIsFree(Boolean isFree) {
-        this.isFree = isFree;
+    public void setFree(Boolean free) {
+        isFree = free;
     }
 
-    public Boolean getIsNew() {
+    public Boolean getNew() {
         return isNew;
     }
 
-    public void setIsNew(Boolean isNew) {
-        this.isNew = isNew;
+    public void setNew(Boolean aNew) {
+        isNew = aNew;
     }
 
     public String getGachaTs() {

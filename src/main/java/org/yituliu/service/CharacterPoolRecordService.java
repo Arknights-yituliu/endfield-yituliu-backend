@@ -248,7 +248,7 @@ public class CharacterPoolRecordService {
             batchInsertWithUniqueIndex(characterPoolRecordList);
 
             playerPoolRecordTask.setCompleteFlag(true);
-
+            playerPoolRecordTask.setRoleId(roleId);
 
             LambdaQueryWrapper<EndministratorInfo> queryWrapper = new LambdaQueryWrapper<>();
             queryWrapper.eq(EndministratorInfo::getRoleId,roleId);
@@ -279,6 +279,19 @@ public class CharacterPoolRecordService {
         }
     }
 
+
+    /**
+     * 获取用户角色卡池记录（同步版本）
+     */
+    public List<CharacterPoolRecord> getCharacterPoolRecordData(HttpServletRequest httpServletRequest, String taskId) {
+        PlayerPoolRecordTask playerPoolRecordTask = playerPoolRecordTaskMapper.selectById(taskId);
+        if(playerPoolRecordTask==null){
+            throw new ServiceException(ResultCode.TOKEN_EXPIRATION);
+        }
+        LambdaQueryWrapper<CharacterPoolRecord> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(CharacterPoolRecord::getRoleId, playerPoolRecordTask.getRoleId());
+        return characterPoolRecordMapper.selectList(queryWrapper);
+    }
 
     @Scheduled(cron = "* * * * * ?")
     private void loadingPoolRecord(){
@@ -564,14 +577,7 @@ public class CharacterPoolRecordService {
     }
 
 
-    /**
-     * 获取用户角色卡池记录（同步版本）
-     */
-    public List<CharacterPoolRecord> getCharacterPoolRecordData(HttpServletRequest httpServletRequest, String roleId) {
-        LambdaQueryWrapper<CharacterPoolRecord> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(CharacterPoolRecord::getRoleId, roleId);
-        return characterPoolRecordMapper.selectList(queryWrapper);
-    }
+
 
     /**
      * 关闭资源

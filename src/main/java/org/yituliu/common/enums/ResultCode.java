@@ -44,6 +44,7 @@ public enum ResultCode {
 	USER_PERMISSION_NO_ACCESS_OR_TIME_OUT(20017, "用户权限验证失败或操作超时"),
 	EMAIL_REGISTERED(20018,"邮箱已被注册"),
 	LOGIN_EXPIRATION(20019,"登录过期"),
+
 	EXCESSIVE_IP_ACCESS_TIMES(20020, "同IP注册次数过多,5分钟5次"),
 	USER_NAME_LENGTH_TOO_SHORT(20021, "用户名长度必须大于2个字符"),
 	USER_NAME_LENGTH_TOO_LONG(20022, "用户名长度不得超过20个字符"),
@@ -52,6 +53,7 @@ public enum ResultCode {
 	USER_NAME_MUST_BE_IN_CHINESE_OR_ENGLISH(20025, "用户名只能由中文、英文、数字组成"),
 	PASS_WORD_MUST_BE_IN_CHINESE_OR_ENGLISH(20026, "密码只能由英文、数字组成"),
 	USER_TOKEN_FORMAT_ERROR_OR_USER_NOT_LOGIN(20027, "用户登录凭证解析错误或用户未登录，请进行反馈"),
+	TOKEN_EXPIRATION(20028,"凭证过期"),
 
 
 
