@@ -8,7 +8,7 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * OkHttp工具类，用于发送HTTP请求
- * 
+ *
  * @author yituliu
  */
 public class OkHttpUtil {
@@ -156,7 +156,7 @@ public class OkHttpUtil {
      * @return 返回响应字符串
      * @throws IOException 如果请求失败则抛出异常
      */
-    public static String postFormWithHeaders(String url, Map<String, String> params, Map<String, String> headers) throws IOException {
+    public static String postFormWithHeaders(String url, Map<String, String> params, Map<String, String> headers) {
         // 创建表单请求体
         FormBody.Builder formBuilder = new FormBody.Builder();
         if (params != null && !params.isEmpty()) {
@@ -194,6 +194,9 @@ public class OkHttpUtil {
                 return responseBody.string();
             }
             return null;
+        } catch (IOException e) {
+            LogUtils.error("HTTP请求失败: {}", e.getMessage(), e);
+            throw new RuntimeException("HTTP请求失败", e);
         }
     }
 
@@ -203,9 +206,8 @@ public class OkHttpUtil {
      * @param url    请求URL
      * @param params 请求参数
      * @return 返回响应字符串
-     * @throws IOException 如果请求失败则抛出异常
      */
-    public static String postForm(String url, Map<String, String> params) throws IOException {
+    public static String postForm(String url, Map<String, String> params) {
         return postFormWithHeaders(url, params, null);
     }
 }

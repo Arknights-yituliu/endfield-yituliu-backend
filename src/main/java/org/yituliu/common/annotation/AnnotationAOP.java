@@ -29,7 +29,7 @@ public class AnnotationAOP {
         MethodSignature signature = (MethodSignature) joinPoint.getSignature();
         Method method = signature.getMethod();
 
-        System.out.println("注解生效了");
+
         // 获取方法参数
         Object[] args = joinPoint.getArgs();
 
@@ -39,6 +39,7 @@ public class AnnotationAOP {
             cacheKey += generateCacheKey(args[0], redisCacheable.paramOrMethod());
         }
 
+        LogUtils.info("cacheKey：{}",cacheKey);
 
         Object cache = "";
 
@@ -50,11 +51,11 @@ public class AnnotationAOP {
 //        log.info("读取数据库内容");
         Object proceed = joinPoint.proceed();
 
-        int timeOut = redisCacheable.timeout();
-        if (timeOut < 0) {
+        int timeout = redisCacheable.timeout();
+        if (timeout < 0) {
             redisTemplate.opsForValue().set(cacheKey, proceed);
         } else {
-            redisTemplate.opsForValue().set(cacheKey, proceed, timeOut, TimeUnit.SECONDS);
+            redisTemplate.opsForValue().set(cacheKey, proceed, timeout, TimeUnit.SECONDS);
         }
 
         LogUtils.info("数据已缓存，缓存key: {}" + cacheKey);

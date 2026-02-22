@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.yituliu.mapper.WeaponPoolRecordMapper">
+
+    <!-- 批量插入武器卡池记录 -->
+    <insert id="batchInsert" >
+        INSERT IGNORE INTO weapon_pool_record (
+            id,
+            role_id,
+            pool_id,
+            pool_name,
+            weapon_id,
+            weapon_name,
+            weapon_type,
+            rarity,
+            is_new,
+            gacha_ts,
+            seq_id,
+            lang,
+            server_id
+        ) VALUES
+        <foreach collection="list" item="item" separator=",">
+            (
+                #{item.id},
+                #{item.roleId},
+                #{item.poolId},
+                #{item.poolName},
+                #{item.weaponId},
+                #{item.weaponName},
+                #{item.weaponType},
+                #{item.rarity},
+                #{item.new},
+                #{item.gachaTs},
+                #{item.seqId},
+                #{item.lang},
+                #{item.serverId}
+            )
+        </foreach>
+    </insert>
+
+
+    <!-- 查询指定roleId下的最大seq_id值（数字版本） -->
+    <select id="getMaxSeqIdNumber" resultType="java.lang.Integer">
+        SELECT MAX(CAST(seq_id AS UNSIGNED))
+        FROM weapon_pool_record 
+        WHERE role_id = #{roleId}
+    </select>
+
+    <!-- 查询指定roleId下的最大seq_id值（字符串版本） -->
+    <select id="getMaxSeqIdString" resultType="java.lang.String">
+        SELECT MAX(seq_id)
+        FROM weapon_pool_record 
+        WHERE role_id = #{roleId}
+    </select>
+
+</mapper>

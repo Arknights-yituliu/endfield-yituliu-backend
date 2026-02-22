@@ -4,11 +4,11 @@
 <mapper namespace="org.yituliu.mapper.PlayerPoolRecordTaskMapper">
 
     <!-- 查询create_time倒序下，startFlag = false的第一个记录 -->
-    <select id="selectFirstByStartFlagFalseOrderByCreateTimeDesc" resultType="org.yituliu.entity.po.PlayerPoolRecordTask">
+    <select id="selectFirstByStartFlagFalseOrderByCreateTimeAsc" resultType="org.yituliu.entity.po.PlayerPoolRecordTask">
         SELECT * 
         FROM player_pool_record_task 
         WHERE start_flag = false 
-        ORDER BY create_time DESC 
+        ORDER BY create_time ASC
         LIMIT 1
     </select>
 
