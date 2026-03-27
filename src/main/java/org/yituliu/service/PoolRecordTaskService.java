@@ -134,11 +134,13 @@ public class PoolRecordTaskService {
 
         playerPoolRecordTask.setCompleteFlag(true);
         playerPoolRecordTask.setRoleId(roleId);
+        playerPoolRecordTask.setToken("token"+idGenerator.nextId());
 
         LambdaQueryWrapper<EndministratorInfo> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(EndministratorInfo::getRoleId, roleId);
         if (!endministratorInfoMapper.exists(queryWrapper)) {
             EndministratorInfo endministratorInfo = new EndministratorInfo();
+            endministratorInfo.setUid(uid);
             endministratorInfo.setUid(uid);
             endministratorInfo.setRoleId(roleId);
             endministratorInfo.setNickName(nickName);
