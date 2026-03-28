@@ -5,11 +5,11 @@ spring:
   datasource:
     type: com.zaxxer.hikari.HikariDataSource
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://127.0.0.1:3306/endfield?serverTimezone=GMT%2B8&characterEncoding=utf-8&useSSL=false&rewriteBatchedStatements=true
-    username: root
-    password: root
+    url: jdbc:mysql://127.0.0.1:3306/endfield?serverTimezone=GMT%2B8&characterEncoding=utf-8&useSSL=false&rewriteBatchedStatements=true&allowPublicKeyRetrieval=true
+    username: root  #改成本地环境的数据库用户名
+    password: root  #改成本地环境的数据库密码
 
-
+    
   data:
     redis:
       host: 127.0.0.1
@@ -22,11 +22,3 @@ spring:
           max-wait: -1
           max-idle: 5
           min-idle: 0
-
-
-
-
-
-
-
-
