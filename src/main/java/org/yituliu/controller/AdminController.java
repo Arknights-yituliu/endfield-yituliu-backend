@@ -1,32 +1,36 @@
 package org.yituliu.controller;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.yituliu.common.annotation.RedisCacheable;
-import org.yituliu.common.utils.JsonMapper;
 import org.yituliu.common.utils.Result;
-import org.yituliu.entity.dto.pool.record.CharacterPoolRecordDTO;
-import org.yituliu.entity.dto.pool.record.CharacterPoolRecordDataDTO;
-import org.yituliu.entity.dto.pool.record.CharacterPoolRecordResponseDTO;
-import org.yituliu.common.utils.FileUtil;
+import org.yituliu.entity.dto.AccessLogDTO;
+import org.yituliu.entity.po.AccessLog;
+import org.yituliu.service.AdminService;
 
-import java.util.List;
-
+import jakarta.servlet.http.HttpServletRequest;
 
 @RestController
-public class TestController {
-    @GetMapping("/")
-    public Result<String> startStatus() {
-        return Result.success("后端启动成功");
+@RequestMapping("/admin")
+public class AdminController {
+
+    private final AdminService adminService;
+
+   
+    public AdminController(AdminService adminService) {
+        this.adminService = adminService;
     }
 
-
-
-
-
-
-
-
+    /**
+     * 保存访问日志
+     * @param accessLog 访问日志对象
+     * @return 操作结果
+     */
+    @PostMapping("/access-log")
+    public Result<Void> saveAccessLog(HttpServletRequest request, @RequestBody AccessLogDTO accessLogDTO) {
+        adminService.saveAccessLog(request, accessLogDTO);
+        return Result.success();
+    }
 }
