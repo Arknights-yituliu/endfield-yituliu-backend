@@ -7,13 +7,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.yituliu.common.utils.Result;
 import org.yituliu.entity.dto.AccessLogDTO;
-import org.yituliu.entity.po.AccessLog;
+
 import org.yituliu.service.AdminService;
 
 import jakarta.servlet.http.HttpServletRequest;
 
 @RestController
-@RequestMapping("/admin")
+
 public class AdminController {
 
     private final AdminService adminService;

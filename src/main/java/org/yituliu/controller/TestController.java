@@ -1,8 +1,12 @@
 package org.yituliu.controller;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.yituliu.common.annotation.RedisCacheable;
 import org.yituliu.common.utils.JsonMapper;

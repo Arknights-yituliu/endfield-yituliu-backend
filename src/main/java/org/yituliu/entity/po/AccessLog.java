@@ -14,22 +14,26 @@ public class AccessLog {
     private String url;
     private String ip;
     private String region;
+    private String referer;
     private String device;
     private String browser;
     private String os;
+    private String userAgent;
     private Date accessTime;
 
     public AccessLog() {
     }
 
-    public AccessLog(Long id, String url, String ip, String region, String device, String browser, String os, Date accessTime) {
+    public AccessLog(Long id, String url, String ip, String region, String referer, String device, String browser, String os, String userAgent, Date accessTime) {
         this.id = id;
         this.url = url;
         this.ip = ip;
         this.region = region;
+        this.referer = referer;
         this.device = device;
         this.browser = browser;
         this.os = os;
+        this.userAgent = userAgent;
         this.accessTime = accessTime;
     }
 
@@ -65,6 +69,14 @@ public class AccessLog {
         this.region = region;
     }
 
+    public String getReferer() {
+        return referer;
+    }
+
+    public void setReferer(String referer) {
+        this.referer = referer;
+    }
+
     public String getDevice() {
         return device;
     }
@@ -89,6 +101,14 @@ public class AccessLog {
         this.os = os;
     }
 
+    public String getUserAgent() {
+        return userAgent;
+    }
+
+    public void setUserAgent(String userAgent) {
+        this.userAgent = userAgent;
+    }
+
     public Date getAccessTime() {
         return accessTime;
     }
@@ -104,9 +124,11 @@ public class AccessLog {
                 ", url='" + url + '\'' +
                 ", ip='" + ip + '\'' +
                 ", region='" + region + '\'' +
+                ", referer='" + referer + '\'' +
                 ", device='" + device + '\'' +
                 ", browser='" + browser + '\'' +
                 ", os='" + os + '\'' +
+                ", userAgent='" + userAgent + '\'' +
                 ", accessTime=" + accessTime +
                 '}';
     }

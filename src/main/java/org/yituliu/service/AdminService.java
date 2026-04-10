@@ -24,14 +24,20 @@ public class AdminService {
 
     /**
      * 保存访问日志
-     * @param request HTTP请求对象
+     * 
+     * @param request   HTTP请求对象
      * @param accessLog 访问日志对象
      */
     public void saveAccessLog(HttpServletRequest request, AccessLogDTO accessLogDTO) {
         AccessLog accessLog = new AccessLog();
-        
+
         if (accessLog.getId() == null) {
             accessLog.setId(idGenerator.nextId());
+        }
+
+        accessLog.setReferer(request.getHeader("Referer"));
+        if (accessLog.getReferer() == null) {
+            accessLog.setReferer("Unknown");
         }
 
         accessLog.setUrl(accessLogDTO.getUrl());
@@ -39,25 +45,25 @@ public class AdminService {
         if (accessLog.getAccessTime() == null) {
             accessLog.setAccessTime(new Date());
         }
-        
+
         accessLog.setIp(IpUtil.getIpAddress(request));
-        
-        if (accessLog.getBrowser() == null) {
-            accessLog.setBrowser(UserAgentUtil.getBrowser(request));
+
+        accessLog.setBrowser(UserAgentUtil.getBrowser(request));
+
+        accessLog.setOs(UserAgentUtil.getOs(request));
+
+        accessLog.setDevice(UserAgentUtil.getDevice(request));
+
+        if("Unknown".equals(accessLog.getBrowser())||"Unknown".equals(accessLog.getOs())||"Unknown".equals(accessLog.getDevice())){
+            accessLog.setUserAgent(UserAgentUtil.getUserAgent(request));
         }
-        
-        if (accessLog.getOs() == null) {
-            accessLog.setOs(UserAgentUtil.getOs(request));
-        }
-        
-        if (accessLog.getDevice() == null) {
-            accessLog.setDevice(UserAgentUtil.getDevice(request));
-        }
-        
+
         if (accessLog.getRegion() == null) {
             accessLog.setRegion("Unknown");
         }
-        
+
+        System.out.println(accessLog);
+
         accessLogMapper.insert(accessLog);
     }
 }
