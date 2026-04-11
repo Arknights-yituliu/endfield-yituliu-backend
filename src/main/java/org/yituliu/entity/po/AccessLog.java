@@ -2,12 +2,11 @@ package org.yituliu.entity.po;
 
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
-import lombok.Data;
+
 
 import java.util.Date;
 
 @TableName("access_log")
-@Data
 public class AccessLog {
     @TableId("id")
     private Long id;

@@ -1,6 +1,6 @@
 package org.yituliu.entity.dto.pool.record;
 
-import lombok.Data;
+
 
 
 public class WeaponPoolRecordResponseDTO {

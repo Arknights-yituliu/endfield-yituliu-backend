@@ -1,6 +1,6 @@
 package org.yituliu.entity.vo;
 
-import lombok.Data;
+
 import org.yituliu.entity.po.CharacterPoolRecord;
 import org.yituliu.entity.po.WeaponPoolRecord;
 

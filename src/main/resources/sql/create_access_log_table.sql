@@ -13,20 +13,8 @@ CREATE TABLE access_log (
     user_agent TEXT COMMENT '完整User-Agent',
     access_time DATETIME NOT NULL COMMENT '访问时间',
     
-    -- 自动维护字段
-    created_time DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-    updated_time DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
-    
     -- 索引定义
     INDEX idx_access_time_ip (access_time, ip) COMMENT '时间+IP复合索引，优化PV/UV统计',
-    INDEX idx_ip (ip) COMMENT 'IP索引，优化按IP查询',
-    INDEX idx_access_time (access_time) COMMENT '时间索引，优化时间范围查询',
-    INDEX idx_url (url(100)) COMMENT 'URL索引（前缀索引）',
-    INDEX idx_device (device) COMMENT '设备索引',
-    INDEX idx_browser (browser) COMMENT '浏览器索引',
-    INDEX idx_os (os) COMMENT '操作系统索引',
-    INDEX idx_region (region) COMMENT '地区索引',
-    INDEX idx_created_time (created_time) COMMENT '创建时间索引'
 ) 
 ENGINE=InnoDB 
 DEFAULT CHARSET=utf8mb4 

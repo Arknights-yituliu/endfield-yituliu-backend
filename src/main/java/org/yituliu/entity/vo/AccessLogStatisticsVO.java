@@ -1,10 +1,10 @@
 package org.yituliu.entity.vo;
 
-import lombok.Data;
+
 
 import java.util.Map;
 
-@Data
+
 public class AccessLogStatisticsVO {
     private Long totalVisits;
     private Long uniqueVisitors;
