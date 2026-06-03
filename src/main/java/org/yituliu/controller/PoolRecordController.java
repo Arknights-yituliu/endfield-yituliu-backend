@@ -6,13 +6,10 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.yituliu.common.utils.Result;
-import org.yituliu.entity.po.CharacterPoolRecord;
 import org.yituliu.entity.po.EndministratorInfo;
 import org.yituliu.entity.vo.PoolRecordVO;
 import org.yituliu.service.CharacterPoolRecordService;
 import org.yituliu.service.PoolRecordTaskService;
-
-import java.util.List;
 
 
 @RestController

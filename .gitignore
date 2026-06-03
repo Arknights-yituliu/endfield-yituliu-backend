@@ -36,5 +36,7 @@ build/
 /src/main/resources/application-pro.yml
 /trae.md
 
+DeepSeek/
+
 /src/test/java/org/yituliu/local/
 /src/test/resources/local/
