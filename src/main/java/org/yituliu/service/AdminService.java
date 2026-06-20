@@ -197,8 +197,8 @@ public class AdminService {
 
     /**
      * 统计指定时间范围内每个URL的总访问次数
-     * 分批查询（每批10万条），Java代码聚合，返回Top 50 URL
-     * 第一项固定为"访问总和"，时间范围最大不超过30天
+     * 分批查询（每批10万条），Java代码聚合，返回全部URL
+     * Top 15 单独列出，其余合并为"其他"，第一项固定为"访问总和"
      *
      * @param startTime 开始时间
      * @param endTime   结束时间
@@ -237,12 +237,27 @@ public class AdminService {
             offset += BATCH_SIZE;                                             // 偏移量递增
         }
 
-        // 按总访问量降序排序，返回Top 50 URL，第一项插入访问总和
-        List<UrlTotalVisitVO> result = urlCount.entrySet().stream()
+        // 按总访问量降序排序全部URL
+        List<Map.Entry<String, Long>> sortedEntries = urlCount.entrySet().stream()
                 .sorted(Map.Entry.<String, Long>comparingByValue().reversed()) // 按总访问量降序
-                .limit(50)                                                     // 只取前50个
-                .map(e -> new UrlTotalVisitVO(e.getKey(), e.getValue()))       // 转换为VO
                 .collect(Collectors.toList());
+
+        List<UrlTotalVisitVO> result = new ArrayList<>();
+
+        // Top 15 单独列出
+        for (int i = 0; i < Math.min(15, sortedEntries.size()); i++) {
+            Map.Entry<String, Long> e = sortedEntries.get(i);
+            result.add(new UrlTotalVisitVO(e.getKey(), e.getValue()));
+        }
+
+        // 剩余URL合并为"其他"
+        if (sortedEntries.size() > 15) {
+            long otherCount = 0;
+            for (int i = 15; i < sortedEntries.size(); i++) {
+                otherCount += sortedEntries.get(i).getValue();
+            }
+            result.add(new UrlTotalVisitVO("其他", otherCount));
+        }
 
         long total = urlCount.values().stream().mapToLong(Long::longValue).sum(); // 所有URL访问量总和
         result.add(0, new UrlTotalVisitVO("访问总和", total));               // 插入到列表第一项
@@ -297,6 +312,58 @@ public class AdminService {
         List<UrlPeriodDataVO> result = new ArrayList<>(allHours.size());
         for (String hour : allHours) {
             result.add(new UrlPeriodDataVO(hour, hourCount.getOrDefault(hour, 0L))); // 填充真实值或0
+        }
+
+        return result;
+    }
+
+    /**
+     * 统计指定时间范围内每日的总访问量（所有URL聚合）
+     * 分批查询（每批10万条），Java代码聚合，零值补齐
+     * 时间范围最大不超过30天
+     *
+     * @param startTime 开始时间
+     * @param endTime   结束时间
+     * @return 每日总访问量列表
+     */
+    public List<UrlPeriodDataVO> getDailyTotalVisits(Date startTime, Date endTime) {
+        long diffMillis = endTime.getTime() - startTime.getTime();            // 计算时间范围的毫秒差
+        if (diffMillis <= 0) {                                                 // 结束时间必须大于开始时间
+            throw new ServiceException(ResultCode.START_TIME_CANNOT_BE_GREATER_THAN_END_TIME);
+        }
+        if (diffMillis > 30L * 24 * 60 * 60 * 1000) {                        // 范围最大不超过30天
+            throw new ServiceException(ResultCode.DATE_RANGE_TOO_LARGE);
+        }
+
+        Map<String, Long> dayCount = new HashMap<>();                         // day → 总访问次数
+
+        long offset = 0;
+        while (true) {
+            List<AccessLog> batch = accessLogMapper.selectList(               // 每批查询10万条记录
+                    new LambdaQueryWrapper<AccessLog>()
+                            .select(AccessLog::getAccessTime)                  // 只查access_time一列
+                            .ge(AccessLog::getAccessTime, startTime)          // access_time >= 开始时间
+                            .lt(AccessLog::getAccessTime, endTime)            // access_time < 结束时间
+                            .last("LIMIT " + offset + "," + BATCH_SIZE)       // 分页偏移 + 批次大小
+            );
+
+            if (batch.isEmpty()) {                                            // 无更多数据时跳出循环
+                break;
+            }
+
+            for (AccessLog log : batch) {                                     // 逐条聚合，按天累计
+                String day = DAY_FORMAT.format(log.getAccessTime());          // 格式化到天级别
+                dayCount.merge(day, 1L, Long::sum);                           // 累计该天的访问次数
+            }
+
+            offset += BATCH_SIZE;                                             // 偏移量递增
+        }
+
+        // 生成时间范围内全部日期列表，无数据的日期填0
+        List<String> allDays = generateAllDays(startTime, endTime);
+        List<UrlPeriodDataVO> result = new ArrayList<>(allDays.size());
+        for (String day : allDays) {
+            result.add(new UrlPeriodDataVO(day, dayCount.getOrDefault(day, 0L))); // 填充真实值或0
         }
 
         return result;

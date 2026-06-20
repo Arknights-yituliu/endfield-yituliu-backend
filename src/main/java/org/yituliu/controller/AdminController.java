@@ -59,7 +59,7 @@ public class AdminController {
 
     /**
      * 获取指定时间范围内每个URL的总访问次数
-     * 返回Top 50 URL，按总访问量降序，时间范围最大不超过30天
+     * Top 15 单独列出，其余合并为"其他"，第一项固定为"访问总和"，时间范围最大不超过30天
      * @param start 开始时间（格式 yyyy-MM-dd HH:mm:ss）
      * @param end   结束时间（格式 yyyy-MM-dd HH:mm:ss）
      * @return URL总访问量列表
@@ -84,6 +84,21 @@ public class AdminController {
             @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") Date start,
             @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") Date end) {
         List<UrlPeriodDataVO> visits = adminService.getHourlyTotalVisits(start, end);
+        return Result.success(visits);
+    }
+
+    /**
+     * 获取指定时间范围内每日的总访问量（所有URL聚合）
+     * 时间范围最大不超过30天
+     * @param start 开始时间（格式 yyyy-MM-dd HH:mm:ss）
+     * @param end   结束时间（格式 yyyy-MM-dd HH:mm:ss）
+     * @return 每日总访问量列表
+     */
+    @GetMapping("/access-log/daily-total")
+    public Result<List<UrlPeriodDataVO>> getDailyTotalVisits(
+            @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") Date start,
+            @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") Date end) {
+        List<UrlPeriodDataVO> visits = adminService.getDailyTotalVisits(start, end);
         return Result.success(visits);
     }
 }

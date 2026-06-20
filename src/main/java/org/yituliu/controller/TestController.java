@@ -13,12 +13,4 @@ public class TestController {
     public Result<String> startStatus() {
         return Result.success("后端启动成功");
     }
-
-
-
-
-
-
-
-
 }
