@@ -49,6 +49,14 @@
         WHERE role_id = #{roleId}
     </select>
 
+    <!-- 查询指定roleId、指定卡池类型下的最大seq_id值（数字版本） -->
+    <select id="getMaxSeqIdNumberByPoolType" resultType="java.lang.Integer">
+        SELECT MAX(CAST(seq_id AS UNSIGNED))
+        FROM character_pool_record
+        WHERE role_id = #{roleId}
+          AND pool_type = #{poolType}
+    </select>
+
     <!-- 查询指定roleId下的最大seq_id值（字符串版本） -->
     <select id="getMaxSeqIdString" resultType="java.lang.String">
         SELECT MAX(seq_id)

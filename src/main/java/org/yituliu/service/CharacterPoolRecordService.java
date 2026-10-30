@@ -36,8 +36,15 @@ import static org.yituliu.common.utils.UrlEncodeUtil.smartUrlEncode;
 public class CharacterPoolRecordService {
 
 
+    // 特许寻访
     private static String SPECIAL_POOL_TYPE = "E_CharacterGachaPoolType_Special";
+    // 重构寻访（同角色复刻卡池，按版本号聚合）
+    private static String RERUN_POOL_TYPE = "E_CharacterGachaPoolType_Rerun";
+    // 辉光庆典（联合寻访，多 UP 六星卡池）
+    private static String JOINT_POOL_TYPE = "E_CharacterGachaPoolType_Joint";
+    // 基础寻访（常驻）
     private static String STANDARD_POOL_TYPE = "E_CharacterGachaPoolType_Standard";
+    // 启程寻访（新手）
     private static String BEGINNER_POOL_TYPE = "E_CharacterGachaPoolType_Beginner";
 
 
@@ -95,8 +102,6 @@ public class CharacterPoolRecordService {
         LogUtils.info("roleId：{} 开始处理角色抽卡记录导入任务，耗时：{} ms", roleId, System.currentTimeMillis() - startTime);
         //要持久化到数据库的干员寻访记录列表
         ArrayList<CharacterPoolRecord> characterPoolRecordList = new ArrayList<>();
-        //查询当前uid的历史干员寻访记录的最大seq_id，减少重复导入的情况
-        Integer characterPoolRecordExistingMaxSeqId = characterPoolRecordMapper.getMaxSeqIdNumber(roleId);
 
         // 并发处理所有池类型：为每个卡池类型创建异步任务
         List<CompletableFuture<CharacterPoolRecordResponseDTO>> characterPoolRecordFutures = new ArrayList<>();
@@ -108,10 +113,12 @@ public class CharacterPoolRecordService {
         Long beginnerPoolRecordCount = characterPoolRecordMapper.selectCount(beginnerPoolWrapper);
 
         int characterPoolRecordListSize = 10;
-        // 创建 List
+        // 创建 List，覆盖官方全部干员卡池类型（特许 / 重构 / 辉光庆典 / 基础 / 启程）
         List<String> poolTypes = new ArrayList<>();
-        poolTypes.add(STANDARD_POOL_TYPE);
         poolTypes.add(SPECIAL_POOL_TYPE);
+        poolTypes.add(RERUN_POOL_TYPE);
+        poolTypes.add(JOINT_POOL_TYPE);
+        poolTypes.add(STANDARD_POOL_TYPE);
         if (beginnerPoolRecordCount < 40) {
             poolTypes.add(BEGINNER_POOL_TYPE);
         }
@@ -123,6 +130,15 @@ public class CharacterPoolRecordService {
                 //不传入seq_id，获取第一页寻访记录的最后一个seq_id
                 CharacterPoolRecordResponseDTO characterPoolRecordResponseDTO =
                         requestCharacterPoolRecordAPI(u8Token, poolType, null);
+
+                // 玩家在该卡池类型下没有任何寻访记录时跳过，避免中断其它卡池类型的导入
+                if (characterPoolRecordResponseDTO.getCode() != 0
+                        || characterPoolRecordResponseDTO.getData() == null
+                        || characterPoolRecordResponseDTO.getData().getList() == null
+                        || characterPoolRecordResponseDTO.getData().getList().isEmpty()) {
+                    LogUtils.info("roleId：{} 卡池类型 {} 暂无寻访记录，跳过", roleId, poolType);
+                    continue;
+                }
 
                 List<CharacterPoolRecordDTO> characterPoolRecordDTOList =
                         characterPoolRecordResponseDTO.getData().getList();
@@ -143,9 +159,13 @@ public class CharacterPoolRecordService {
                 LogUtils.info("roleId：{} ，{}最大的seq_id：{}，耗时：{} ms",
                         roleId, poolType, lastSeqId, System.currentTimeMillis() - startTime);
 
+                // 按卡池类型查询已有记录的最大seq_id：新增的卡池类型（重构 / 辉光庆典）没有历史记录时从0开始全量补齐
+                Integer poolTypeExistingMaxSeqId =
+                        characterPoolRecordMapper.getMaxSeqIdNumberByPoolType(roleId, poolType);
+
                 //建一个集合，元素为seq_id每次递减5，用于接下来创建查询请求队列
                 List<String> seqIdList = PoolRecordTaskUtil
-                        .initSeqIdList(lastSeqId, characterPoolRecordExistingMaxSeqId);
+                        .initSeqIdList(lastSeqId, poolTypeExistingMaxSeqId);
                 //持久化对象集合的长度增加
                 characterPoolRecordListSize += seqIdList.size() * 5;
                 //创建查询请求队列
@@ -179,7 +199,9 @@ public class CharacterPoolRecordService {
                                 // future.get()：阻塞获取单个异步任务的结果
                                 // 这里每个future的结果是List<CharacterPoolRecordDTO>类型
                                 CharacterPoolRecordResponseDTO futureResult = future.get();
-                                if (0 != futureResult.getCode()) {
+                                // 请求失败或返回空数据时跳过该页
+                                if (0 != futureResult.getCode() || futureResult.getData() == null
+                                        || futureResult.getData().getList() == null) {
                                     continue;
                                 }
                                 List<CharacterPoolRecordDTO> characterPoolRecordDTOList = futureResult.getData().getList();
