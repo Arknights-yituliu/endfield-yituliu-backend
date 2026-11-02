@@ -23,5 +23,21 @@
         ]]>
     </select>
 
+    <!--
+        按URL分组统计指定时间范围内各URL的访问量。
+        直接按 url 列 GROUP BY，避免用函数包裹列导致索引失效，
+        排序与条数一并下推数据库，避免把当天全部 URL 拉进内存再排序。
+    -->
+    <select id="countByUrl" resultType="org.yituliu.entity.dto.UrlCountDTO">
+        <![CDATA[
+            SELECT url AS url, COUNT(*) AS count
+            FROM access_log
+            WHERE access_time >= #{startTime}
+              AND access_time < #{endTime}
+            GROUP BY url
+            ORDER BY COUNT(*) DESC
+            LIMIT #{limit}
+        ]]>
+    </select>
 
 </mapper>

@@ -3,9 +3,11 @@ package org.yituliu.mapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
+import org.yituliu.entity.dto.UrlCountDTO;
 import org.yituliu.entity.po.AccessLog;
 
 import java.util.Date;
+import java.util.List;
 
 /**
  * 访问日志Mapper接口
@@ -31,4 +33,16 @@ public interface AccessLogMapper extends BaseMapper<AccessLog> {
      * @return 独立访客数
      */
     Long countUniqueVisitors(@Param("startTime") Date startTime, @Param("endTime") Date endTime);
+
+    /**
+     * 按URL分组统计指定时间范围内各URL的访问量
+     *
+     * @param startTime 起始时间（含）
+     * @param endTime   结束时间（不含）
+     * @param limit     返回的最大URL条数（按访问量降序）
+     * @return 各URL访问量列表
+     */
+    List<UrlCountDTO> countByUrl(@Param("startTime") Date startTime,
+                                 @Param("endTime") Date endTime,
+                                 @Param("limit") int limit);
 }
